@@ -1,5 +1,4 @@
 import React, { useRef, useState } from "react";
-import "./App.css";
 
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
@@ -22,12 +21,13 @@ const auth = firebase.auth();
 const firestore = firebase.firestore();
 
 function App() {
+  const [name] = useState("Chatting Application");
   const [user] = useAuthState(auth);
 
   return (
     <div className="App">
       <header>
-        <h1>⚛️🔥💬</h1>
+        <h1>⚛️🔥💬{name}</h1>
         <SignOut />
       </header>
 
