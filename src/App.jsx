@@ -26,10 +26,11 @@ function App() {
 
   return (
     <div className="App">
-      <header>
-        <button onClick={() => setState("abc")}>Click Me</button>
-        <h1>⚛️🔥💬{name}</h1>
-        <SignOut />
+      <header className="flex align-middle">
+        <div className="text-2xl">⚛️{name}</div>
+        <div>
+          <SignOut />
+        </div>
       </header>
 
       <section>{user ? <ChatRoom /> : <SignIn />}</section>
@@ -45,7 +46,7 @@ function SignIn() {
 
   return (
     <>
-      <button className="sign-in" onClick={signInWithGoogle}>
+      <button className="btn btn-primary" onClick={signInWithGoogle}>
         Sign in with Google
       </button>
       <p>
@@ -58,7 +59,7 @@ function SignIn() {
 function SignOut() {
   return (
     auth.currentUser && (
-      <button className="sign-out" onClick={() => auth.signOut()}>
+      <button className="btn btn-primary" onClick={() => auth.signOut()}>
         Sign Out
       </button>
     )
@@ -100,15 +101,29 @@ function ChatRoom() {
       </main>
 
       <form onSubmit={sendMessage}>
-        <input
-          value={formValue}
-          onChange={(e) => setFormValue(e.target.value)}
-          placeholder="say something nice"
-        />
+        <div
+          style={{ width: "100%" }}
+          className="fixed bottom-0 flex space-x-2 justify-center"
+        >
+          <div>
+            <input
+              value={formValue}
+              onChange={(e) => setFormValue(e.target.value)}
+              placeholder="Type here"
+              className="input input-bordered w-full max-w-xs"
+            />
+          </div>
 
-        <button type="submit" disabled={!formValue}>
-          🕊️
-        </button>
+          <div>
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={!formValue}
+            >
+              Send Message
+            </button>
+          </div>
+        </div>
       </form>
     </>
   );
