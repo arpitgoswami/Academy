@@ -21,12 +21,13 @@ const auth = firebase.auth();
 const firestore = firebase.firestore();
 
 function App() {
-  const [name] = useState("Chatting Application");
+  const [name, setState] = useState("Chatting Application");
   const [user] = useAuthState(auth);
 
   return (
     <div className="App">
       <header>
+        <button onClick={() => setState("abc")}>Click Me</button>
         <h1>⚛️🔥💬{name}</h1>
         <SignOut />
       </header>
