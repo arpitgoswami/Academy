@@ -7,6 +7,8 @@ import "firebase/compat/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 
+import "boxicons";
+
 firebase.initializeApp({
   apiKey: "AIzaSyBl1ClScZmSLxKFiybmwMF9Qq7KLdiVqvg",
   authDomain: "reactfirebase-f43b8.firebaseapp.com",
@@ -26,14 +28,14 @@ function App() {
 
   return (
     <div className="App">
-      <header className="flex align-middle">
-        <div className="text-2xl">⚛️{name}</div>
+      <header className="m-4 p-4 top-0 flex align-middle justify-between items-center bg-slate-950 rounded-xl">
+        <div className="text-2xl">Ar Chat</div>
         <div>
           <SignOut />
         </div>
       </header>
 
-      <section>{user ? <ChatRoom /> : <SignIn />}</section>
+      <section className="">{user ? <ChatRoom /> : <SignIn />}</section>
     </div>
   );
 }
@@ -46,12 +48,20 @@ function SignIn() {
 
   return (
     <>
-      <button className="btn btn-primary" onClick={signInWithGoogle}>
-        Sign in with Google
-      </button>
-      <p>
-        Do not violate the community guidelines or you will be banned for life!
-      </p>
+      <div className="mx-4 justify-center">
+        <center>
+          <img src="./banner.png" style={{ width: "100%", height: "auto" }} />
+          <div className="pt-4 text-3xl">Welcome Back!</div>
+          <div className="py-4">
+            Do not violate the community guidelines or you will be banned for
+            life!
+          </div>
+
+          <button className="btn btn-primary" onClick={signInWithGoogle}>
+            <box-icon type="logo" name="google"></box-icon> Sign in with Google
+          </button>
+        </center>
+      </div>
     </>
   );
 }
@@ -93,23 +103,24 @@ function ChatRoom() {
 
   return (
     <>
-      <main>
+      <main className="p-4">
         {messages &&
           messages.map((msg) => <ChatMessage key={msg.id} message={msg} />)}
 
         <span ref={dummy}></span>
       </main>
 
-      <form onSubmit={sendMessage}>
+      <form style={{ width: "100%" }} onSubmit={sendMessage}>
         <div
           style={{ width: "100%" }}
-          className="fixed bottom-0 flex space-x-2 justify-center"
+          className="p-4 fixed bottom-0 flex space-x-2 justify-center"
         >
           <div>
             <input
               value={formValue}
               onChange={(e) => setFormValue(e.target.value)}
               placeholder="Type here"
+              size="100"
               className="input input-bordered w-full max-w-xs"
             />
           </div>
@@ -141,6 +152,7 @@ function ChatMessage(props) {
           src={
             photoURL || "https://api.adorable.io/avatars/23/abott@adorable.png"
           }
+          className="w-8 rounded-xl"
         />
         <p>{text}</p>
       </div>
