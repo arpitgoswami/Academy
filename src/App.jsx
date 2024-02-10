@@ -7,6 +7,8 @@ import "firebase/compat/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 
+import "boxicons";
+
 firebase.initializeApp({
   apiKey: "AIzaSyBl1ClScZmSLxKFiybmwMF9Qq7KLdiVqvg",
   authDomain: "reactfirebase-f43b8.firebaseapp.com",
@@ -26,13 +28,14 @@ function App() {
 
   return (
     <div className="App">
-      <header>
-        <button onClick={() => setState("abc")}>Click Me</button>
-        <h1>⚛️🔥💬{name}</h1>
-        <SignOut />
+      <header className="m-4 p-4 top-0 flex align-middle justify-between items-center bg-slate-950 rounded-xl">
+        <div className="text-2xl">Ar Chat</div>
+        <div>
+          <SignOut />
+        </div>
       </header>
 
-      <section>{user ? <ChatRoom /> : <SignIn />}</section>
+      <section className="">{user ? <ChatRoom /> : <SignIn />}</section>
     </div>
   );
 }
@@ -45,12 +48,20 @@ function SignIn() {
 
   return (
     <>
-      <button className="sign-in" onClick={signInWithGoogle}>
-        Sign in with Google
-      </button>
-      <p>
-        Do not violate the community guidelines or you will be banned for life!
-      </p>
+      <div className="mx-4 justify-center">
+        <center>
+          <img src="./banner.png" style={{ width: "100%", height: "auto" }} />
+          <div className="pt-4 text-3xl">Welcome Back!</div>
+          <div className="py-4">
+            Do not violate the community guidelines or you will be banned for
+            life!
+          </div>
+
+          <button className="btn btn-primary" onClick={signInWithGoogle}>
+            <box-icon type="logo" name="google"></box-icon> Sign in with Google
+          </button>
+        </center>
+      </div>
     </>
   );
 }
@@ -58,7 +69,7 @@ function SignIn() {
 function SignOut() {
   return (
     auth.currentUser && (
-      <button className="sign-out" onClick={() => auth.signOut()}>
+      <button className="btn btn-primary" onClick={() => auth.signOut()}>
         Sign Out
       </button>
     )
@@ -92,23 +103,38 @@ function ChatRoom() {
 
   return (
     <>
-      <main>
+      <main className="p-4">
         {messages &&
           messages.map((msg) => <ChatMessage key={msg.id} message={msg} />)}
 
         <span ref={dummy}></span>
       </main>
 
-      <form onSubmit={sendMessage}>
-        <input
-          value={formValue}
-          onChange={(e) => setFormValue(e.target.value)}
-          placeholder="say something nice"
-        />
+      <form style={{ width: "100%" }} onSubmit={sendMessage}>
+        <div
+          style={{ width: "100%" }}
+          className="p-4 fixed bottom-0 flex space-x-2 justify-center"
+        >
+          <div>
+            <input
+              value={formValue}
+              onChange={(e) => setFormValue(e.target.value)}
+              placeholder="Type here"
+              size="100"
+              className="input input-bordered w-full max-w-xs"
+            />
+          </div>
 
-        <button type="submit" disabled={!formValue}>
-          🕊️
-        </button>
+          <div>
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={!formValue}
+            >
+              Send Message
+            </button>
+          </div>
+        </div>
       </form>
     </>
   );
@@ -126,6 +152,7 @@ function ChatMessage(props) {
           src={
             photoURL || "https://api.adorable.io/avatars/23/abott@adorable.png"
           }
+          className="w-8 rounded-xl"
         />
         <p>{text}</p>
       </div>
