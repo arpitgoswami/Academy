@@ -1,8 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,400;0,700;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Poppins&family=Roboto:ital,wght@0,400;0,700;1,700&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  font-family: "Roboto", sans-serif;
+}
 
 main {
   height: 70vh;
@@ -20,11 +26,11 @@ main::-webkit-scrollbar-track {
 }
 
 main::-webkit-scrollbar-thumb {
-  background: #6649b8;
+  background: #7480ff;
 }
 
 p {
-  color: #fff;
+  color: #050617;
   padding: 0.5rem 0.5rem 0.5rem 0.5rem;
   width: max-content;
   margin: 0.5rem 0.5rem 0.5rem 0.5rem;
@@ -42,9 +48,17 @@ p {
 }
 
 .sent p {
-  background-color: aqua;
+  background-color: #929aa5;
 }
 
 .received p {
-  background-color: Magenta;
+  background-color: #7480ff;
+}
+
+.timestamp {
+  font-size: 0.5rem;
+  border-top: 1px solid #050617;
+  opacity: 0.6;
+  padding-top: 0.2rem;
+  margin-top: 0.2rem;
 }
