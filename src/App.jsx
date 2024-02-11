@@ -50,7 +50,11 @@ function SignIn() {
     <>
       <div className="mx-4 justify-center">
         <center>
-          <img src="./banner.png" style={{ width: "100%", height: "auto" }} />
+          <img
+            id="banner"
+            src="./banner.png"
+            style={{ width: "100%", height: "auto" }}
+          />
           <div className="pt-4 text-3xl">Welcome Back!</div>
           <div className="py-4">
             Do not violate the community guidelines or you will be banned for

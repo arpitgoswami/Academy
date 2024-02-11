@@ -62,3 +62,25 @@ p {
   padding-top: 0.2rem;
   margin-top: 0.2rem;
 }
+
+#banner {
+  filter: drop-shadow(5px 5px 5px #000);
+  animation-name: hoverm;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes hoverm {
+  0% {
+    transform: translateY(0%);
+  }
+
+  50% {
+    transform: translateY(-2%);
+    filter: drop-shadow(10px 10px 10px #222);
+  }
+
+  100% {
+    transform: translateY(0%);
+  }
+}
