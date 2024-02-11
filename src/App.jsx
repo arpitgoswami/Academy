@@ -29,7 +29,7 @@ function App() {
   return (
     <div className="App">
       <header className="m-4 p-4 top-0 flex align-middle justify-between items-center bg-slate-950 rounded-xl">
-        <div className="text-2xl">Ar Chat</div>
+        <div className="text-2xl font-semibold">Ar Chat</div>
         <div>
           <SignOut />
         </div>
@@ -50,7 +50,11 @@ function SignIn() {
     <>
       <div className="mx-4 justify-center">
         <center>
-          <img src="./banner.png" style={{ width: "100%", height: "auto" }} />
+          <img
+            id="banner"
+            src="./banner.png"
+            style={{ width: "100%", height: "auto" }}
+          />
           <div className="pt-4 text-3xl">Welcome Back!</div>
           <div className="py-4">
             Do not violate the community guidelines or you will be banned for
@@ -141,22 +145,28 @@ function ChatRoom() {
 }
 
 function ChatMessage(props) {
-  const { text, uid, photoURL } = props.message;
+  const { text, uid, photoURL, createdAt } = props.message;
+  const time = createdAt ? createdAt.toDate().toLocaleTimeString() : "";
+  const day = createdAt
+    ? createdAt.toDate().toLocaleDateString(undefined, { weekday: "long" })
+    : "";
 
   const messageClass = uid === auth.currentUser.uid ? "sent" : "received";
 
   return (
-    <>
-      <div className={`message ${messageClass}`}>
-        <img
-          src={
-            photoURL || "https://api.adorable.io/avatars/23/abott@adorable.png"
-          }
-          className="w-8 rounded-xl"
-        />
-        <p>{text}</p>
-      </div>
-    </>
+    <div className={`message ${messageClass}`}>
+      <img
+        src={
+          photoURL || "https://api.adorable.io/avatars/23/abott@adorable.png"
+        }
+        className="w-8 rounded-xl"
+      />
+      <p>
+        <div>{day}</div>
+        {text}
+        <div className="timestamp">{time}</div>
+      </p>
+    </div>
   );
 }
 
