@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
@@ -135,7 +135,7 @@ function ChatRoom() {
               type="submit"
               disabled={!formValue}
             >
-              Send Message
+              <box-icon name="send"></box-icon>
             </button>
           </div>
         </div>
@@ -146,12 +146,32 @@ function ChatRoom() {
 
 function ChatMessage(props) {
   const { text, uid, photoURL, createdAt } = props.message;
-  const time = createdAt ? createdAt.toDate().toLocaleTimeString() : "";
-  const day = createdAt
-    ? createdAt.toDate().toLocaleDateString(undefined, { weekday: "long" })
-    : "";
+  const [time, setTime] = useState("");
+  const [day, setDay] = useState("");
+  const [prevDay, setPrevDay] = useState("");
+
+  useEffect(() => {
+    if (createdAt) {
+      const newTime = createdAt.toDate().toLocaleTimeString();
+      setTime(newTime);
+
+      const newDay = createdAt
+        .toDate()
+        .toLocaleDateString(undefined, { weekday: "long" });
+
+      // Check if the current day is different from the previous day
+      if (newDay !== prevDay) {
+        setDay(newDay);
+        setPrevDay(newDay); // Update previous day
+      } else {
+        setDay(""); // Clear the day if it's the same as the previous day
+      }
+      console.log(day);
+    }
+  }, [createdAt, prevDay]);
 
   const messageClass = uid === auth.currentUser.uid ? "sent" : "received";
+  console.log(day);
 
   return (
     <div className={`message ${messageClass}`}>
@@ -162,8 +182,8 @@ function ChatMessage(props) {
         className="w-8 rounded-xl"
       />
       <p>
-        <div>{day}</div>
         {text}
+        {day}
         <div className="timestamp">{time}</div>
       </p>
     </div>
