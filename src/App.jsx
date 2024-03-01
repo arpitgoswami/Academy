@@ -1,4 +1,5 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import { format } from "date-fns";
 
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
@@ -135,7 +136,7 @@ function ChatRoom() {
               type="submit"
               disabled={!formValue}
             >
-              Send Message
+              <box-icon name="send"></box-icon>
             </button>
           </div>
         </div>
@@ -146,27 +147,61 @@ function ChatRoom() {
 
 function ChatMessage(props) {
   const { text, uid, photoURL, createdAt } = props.message;
-  const time = createdAt ? createdAt.toDate().toLocaleTimeString() : "";
-  const day = createdAt
-    ? createdAt.toDate().toLocaleDateString(undefined, { weekday: "long" })
-    : "";
+  const [time, setTime] = useState();
+  const [minus, setMinus] = useState("");
+  const [day, setDay] = useState("");
+  const [prevDay, setPrevDay] = useState("");
+  const [printed, setPrinted] = useState(false);
+
+  useEffect(() => {
+    let newTime = createdAt.toDate().toLocaleDateString();
+    setTime(newTime);
+
+    newTime = createdAt.toDate();
+    const currentTime = new Date();
+    const diffInMilliseconds = currentTime - newTime;
+    const diffInMinutes = Math.floor(diffInMilliseconds / (1000 * 60));
+    const diffString =
+      diffInMinutes === 0 ? "just now" : diffInMinutes + " minutes ago";
+    setMinus(diffString);
+
+    const newDay = createdAt
+      .toDate()
+      .toLocaleDateString(undefined, { weekday: "long" });
+
+    /*if (newDay != prevDay) {
+      setPrinted(true);
+    } else {
+      setPrinted(false);
+    }*/
+
+    printed ? setDay(newDay) : setDay("");
+  }, []);
 
   const messageClass = uid === auth.currentUser.uid ? "sent" : "received";
 
   return (
-    <div className={`message ${messageClass}`}>
-      <img
-        src={
-          photoURL || "https://api.adorable.io/avatars/23/abott@adorable.png"
-        }
-        className="w-8 rounded-xl"
-      />
-      <p>
-        <div>{day}</div>
-        {text}
-        <div className="timestamp">{time}</div>
-      </p>
-    </div>
+    <>
+      <div className={`message ${messageClass}`}>
+        <img
+          src={
+            photoURL || "https://api.adorable.io/avatars/23/abott@adorable.png"
+          }
+          className="w-8 rounded-xl"
+        />
+        <div className="message-box s">
+          {text}
+          <div className="timestamp">
+            <div>{time}</div>
+            <div>{minus}</div>
+            <div>
+              {day}
+              {() => setPrinted(true)}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
