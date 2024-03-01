@@ -29,7 +29,7 @@ main::-webkit-scrollbar-thumb {
   background: #7480ff;
 }
 
-p {
+.message-box {
   color: #050617;
   padding: 0.5rem 0.5rem 0.5rem 0.5rem;
   width: max-content;
@@ -47,18 +47,18 @@ p {
   margin-right: 1rem;
 }
 
-.sent p {
+.sent .message-box {
   background-color: #929aa5;
 }
 
-.received p {
+.received .message-box {
   background-color: #7480ff;
 }
 
 .timestamp {
   font-size: 0.5rem;
   border-top: 1px solid #050617;
-  opacity: 0.6;
+  opacity: 1;
   padding-top: 0.2rem;
   margin-top: 0.2rem;
 }
