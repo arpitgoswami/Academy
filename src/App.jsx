@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { format } from "date-fns";
+import { SiChatbot } from "react-icons/si";
 
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
@@ -30,7 +31,12 @@ function App() {
   return (
     <div className="App">
       <header className="m-4 p-4 top-0 flex align-middle justify-between items-center bg-slate-950 rounded-xl">
-        <div className="text-2xl font-semibold">Ar Chat</div>
+        <div className="text-2xl space-x-2 font-semibold flex items-center">
+          <div>
+            <SiChatbot />
+          </div>
+          <div>Chitti</div>
+        </div>
         <div>
           <SignOut />
         </div>
@@ -150,33 +156,27 @@ function ChatMessage(props) {
   const [time, setTime] = useState();
   const [minus, setMinus] = useState("");
   const [day, setDay] = useState("");
-  const [prevDay, setPrevDay] = useState("");
-  const [printed, setPrinted] = useState(false);
 
   useEffect(() => {
-    let newTime = createdAt.toDate().toLocaleDateString();
-    setTime(newTime);
+    if (createdAt) {
+      const newTime = createdAt.toDate().toLocaleDateString();
+      setTime(newTime);
 
-    newTime = createdAt.toDate();
-    const currentTime = new Date();
-    const diffInMilliseconds = currentTime - newTime;
-    const diffInMinutes = Math.floor(diffInMilliseconds / (1000 * 60));
-    const diffString =
-      diffInMinutes === 0 ? "just now" : diffInMinutes + " minutes ago";
-    setMinus(diffString);
+      const newTime2 = createdAt.toDate();
+      const currentTime = new Date();
+      const diffInMilliseconds = currentTime - newTime2;
+      const diffInMinutes = Math.floor(diffInMilliseconds / (1000 * 60)) + 1;
+      const diffString =
+        diffInMinutes === 0 ? "just now" : diffInMinutes + " minutes ago";
+      setMinus(diffString);
 
-    const newDay = createdAt
-      .toDate()
-      .toLocaleDateString(undefined, { weekday: "long" });
+      const newDay = createdAt
+        .toDate()
+        .toLocaleDateString(undefined, { weekday: "long" });
 
-    /*if (newDay != prevDay) {
-      setPrinted(true);
-    } else {
-      setPrinted(false);
-    }*/
-
-    printed ? setDay(newDay) : setDay("");
-  }, []);
+      setDay(newDay);
+    }
+  }, [createdAt]);
 
   const messageClass = uid === auth.currentUser.uid ? "sent" : "received";
 
@@ -194,10 +194,7 @@ function ChatMessage(props) {
           <div className="timestamp">
             <div>{time}</div>
             <div>{minus}</div>
-            <div>
-              {day}
-              {() => setPrinted(true)}
-            </div>
+            <div>{day}</div>
           </div>
         </div>
       </div>
