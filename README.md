@@ -3,27 +3,18 @@ ChittiChat is your ultimate modern communication hub, powered by cutting-edge te
 
 ## Key Features:
 
-Instant Messaging: Experience lightning-fast messaging with real-time updates, ensuring smooth and efficient communication.
+- **Instant Messaging**: Experience lightning-fast messaging with real-time updates.
+- **Secure Authentication**: Robust user authentication system ensures privacy and security.
+- **Responsive Design**: Fully responsive for optimal viewing across all devices.
+- **Customizable Themes**: Personalize the appearance with Tailwind CSS integration.
+- **Emoji Galore**: Express yourself with a vast selection of emojis.
+- **Effortless File Sharing**: Share documents, images, or videos within conversations.
+- **Notification Center**: Stay up-to-date with instant notifications for new messages and activities.
+- **Powerful Search Functionality**: Easily find specific messages or conversations.
+- **Presence Indicators**: Know when contacts are online/offline.
+- **Group Chat**: Create and participate in group conversations.
+- **Message Reactions**: React to messages with emojis to express feelings or acknowledge receipt.
 
-Secure Authentication: Robust user authentication system ensures privacy and security, keeping your conversations safe from unauthorized access.
-
-Responsive Design: ChittiChat is fully responsive, providing an optimal viewing experience across all devices, from desktops to mobile phones.
-
-Customizable Themes: Tailwind CSS integration allows you to personalize the appearance of ChittiChat to suit your style, making it visually appealing and unique.
-
-Emoji Galore: Express yourself with a vast selection of emojis available for use in your conversations, adding fun and emotion to your messages.
-
-Effortless File Sharing: Share files effortlessly within conversations, whether it's documents, images, or videos, making collaboration a breeze.
-
-Notification Center: Stay up-to-date with instant notifications for new messages and activities, ensuring you never miss an important conversation.
-
-Powerful Search Functionality: Easily find specific messages or conversations with the built-in search feature, saving you time and enhancing productivity.
-
-Presence Indicators: Know when your contacts are online or offline with presence indicators, making it easy to see who's available for chat.
-
-Group Chat: Create and participate in group conversations with multiple users, enabling seamless collaboration and teamwork.
-
-Message Reactions: React to messages with emojis to express your feelings or acknowledge receipt without typing a response, making conversations more dynamic.
 
 ## Application Screenshot
 
