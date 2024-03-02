@@ -1,7 +1,7 @@
-#Description:
+# Description:
 ChittiChat is your ultimate modern communication hub, powered by cutting-edge technologies including Vite, React, JavaScript, Tailwind CSS, and Daisy UI components. With ChittiChat, you can enjoy seamless communication with friends, family, and colleagues in a sleek and intuitive interface packed with rich features.
 
-##Key Features:
+## Key Features:
 
 Instant Messaging: Experience lightning-fast messaging with real-time updates, ensuring smooth and efficient communication.
 
