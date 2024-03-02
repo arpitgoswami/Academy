@@ -1,33 +1,86 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,400;0,700;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Poppins&family=Roboto:ital,wght@0,400;0,700;1,700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  font-family: "Roboto", sans-serif;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+main {
+  height: 70vh;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+}
+
+main::-webkit-scrollbar {
+  width: 0.25rem;
+}
+
+main::-webkit-scrollbar-track {
+  background: #1e1e24;
+}
+
+main::-webkit-scrollbar-thumb {
+  background: #7480ff;
+}
+
+.message-box {
+  color: #050617;
+  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+  width: max-content;
+  margin: 0.5rem 0.5rem 0.5rem 0.5rem;
+  border-radius: 0.75rem;
+}
+
+.message {
+  display: flex;
+  align-items: center;
+}
+
+.sent {
+  flex-direction: row-reverse;
+  margin-right: 1rem;
+}
+
+.sent .message-box {
+  background-color: #929aa5;
+}
+
+.received .message-box {
+  background-color: #7480ff;
+}
+
+.timestamp {
+  font-size: 0.5rem;
+  border-top: 1px solid #050617;
+  opacity: 1;
+  padding-top: 0.2rem;
+  margin-top: 0.2rem;
+}
+
+#banner {
+  filter: drop-shadow(5px 5px 5px #000);
+  animation-name: hoverm;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes hoverm {
+  0% {
+    transform: translateY(0%);
+  }
+
+  50% {
+    transform: translateY(-2%);
+    filter: drop-shadow(10px 10px 10px #222);
+  }
+
+  100% {
+    transform: translateY(0%);
   }
 }
