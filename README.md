@@ -25,9 +25,8 @@ Group Chat: Create and participate in group conversations with multiple users, e
 
 Message Reactions: React to messages with emojis to express your feelings or acknowledge receipt without typing a response, making conversations more dynamic.
 
-ChittiChat revolutionizes online communication, offering a fresh and innovative approach to staying connected. Whether you're catching up with friends, collaborating with colleagues, or keeping in touch with loved ones, ChittiChat provides the tools you need for efficient and enjoyable communication. Experience the future of chatting with ChittiChat today!
-
-
 ## Application Screenshot
+
+ChittiChat revolutionizes online communication, offering a fresh and innovative approach to staying connected. Whether you're catching up with friends, collaborating with colleagues, or keeping in touch with loved ones, ChittiChat provides the tools you need for efficient and enjoyable communication. Experience the future of chatting with ChittiChat today!
 
 ![FireShot Capture 004 - Vite + React - localhost](https://github.com/arpitgoswami/React-Chat-Room/assets/71710858/7bd9c663-8e4c-44f9-b7de-dff060dd3069)
