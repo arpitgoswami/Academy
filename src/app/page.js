@@ -2,6 +2,8 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { SiChatbot } from "react-icons/si";
+import { BiSend } from "react-icons/bi";
+import { FaGoogle } from "react-icons/fa";
 
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
@@ -9,8 +11,6 @@ import "firebase/compat/auth";
 
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollectionData } from "react-firebase-hooks/firestore";
-
-import "boxicons";
 
 firebase.initializeApp({
   apiKey: "AIzaSyBl1ClScZmSLxKFiybmwMF9Qq7KLdiVqvg",
@@ -70,7 +70,7 @@ function SignIn() {
           </div>
 
           <button className="btn btn-primary" onClick={signInWithGoogle}>
-            <box-icon type="logo" name="google"></box-icon> Sign in with Google
+            <FaGoogle /> Sign in with Google
           </button>
         </center>
       </div>
@@ -139,11 +139,11 @@ function ChatRoom() {
 
           <div>
             <button
-              className="btn btn-primary"
+              className="btn btn-primary text-2xl"
               type="submit"
               disabled={!formValue}
             >
-              <box-icon name="send"></box-icon>
+              <BiSend />
             </button>
           </div>
         </div>
