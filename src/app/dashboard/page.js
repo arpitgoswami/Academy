@@ -1,0 +1,273 @@
+"use client";
+
+import { useAuth, signOutUser } from "../firebase";
+import { useState, useEffect } from "react";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
+// Import React Icons
+import {
+  HiOutlineLogout,
+  HiOutlineLightningBolt,
+  HiOutlineDocument,
+  HiOutlineClipboard,
+  HiOutlineCheck,
+  HiOutlineCode,
+  HiOutlineLockClosed,
+  HiOutlineUser,
+} from "react-icons/hi";
+import { BiLoaderAlt } from "react-icons/bi";
+import { VscCircleFilled } from "react-icons/vsc";
+import { BsCircleFill } from "react-icons/bs";
+
+export default function Dashboard() {
+  const user = useAuth();
+  const [aiResponse, setAiResponse] = useState("");
+  const [userPrompt, setUserPrompt] = useState("");
+  const [isCopied, setIsCopied] = useState(false);
+  const [codeBlock, setCodeBlock] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showContent, setShowContent] = useState(false);
+
+  useEffect(() => {
+    setShowContent(true);
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setAiResponse("Thinking...");
+    try {
+      const genAI = new GoogleGenerativeAI(
+        "AIzaSyDyO3RcVB1iXrGt16uIoZ0hDWiSbHbsXp4"
+      );
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+      const result = await model.generateContent(userPrompt);
+      const responseText = result.response.text();
+
+      setAiResponse(responseText);
+      extractCode(responseText);
+      setIsCopied(false);
+    } catch (error) {
+      console.error("Error fetching AI response:", error);
+      setAiResponse("Error generating response.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const extractCode = (text) => {
+    const codeRegex = /```(\w+)?\n([\s\S]+?)```/g;
+    let match;
+    let extractedCode = "";
+
+    while ((match = codeRegex.exec(text)) !== null) {
+      extractedCode += match[2] + "\n\n";
+    }
+
+    setCodeBlock(extractedCode.trim());
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(aiResponse).then(() => {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    });
+  };
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(codeBlock).then(() => {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 text-white">
+      <header className="bg-slate-800/40 backdrop-blur-xl border-b border-slate-700/40 shadow-lg sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between">
+          <div className="flex items-center mb-3 sm:mb-0">
+            <div className="w-10 h-10 relative mr-3 group">
+              <div className="absolute inset-0 bg-purple-500 rounded-full opacity-30 blur-md group-hover:opacity-50 transition-all duration-300"></div>
+              <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center w-full h-full shadow-md transform group-hover:scale-105 transition-all duration-300">
+                <span className="text-white text-sm font-extrabold">CG</span>
+              </div>
+            </div>
+            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
+              CodeGenius
+            </h1>
+          </div>
+
+          <div className="flex items-center">
+            <div className="mr-4 text-sm text-gray-300 flex items-center">
+              <BsCircleFill className="h-2 w-2 text-green-400 mr-2 animate-pulse" />
+              <span>Welcome, {user?.displayName || user?.email}</span>
+            </div>
+            <button
+              onClick={signOutUser}
+              className="bg-slate-800/70 hover:bg-slate-700/70 text-white px-4 py-2 rounded-lg text-sm transition-all duration-200 flex items-center shadow-md border border-slate-700/50 hover:border-slate-600"
+            >
+              <HiOutlineLogout className="h-4 w-4 mr-1.5" />
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-6 md:py-8 max-w-5xl">
+        <div
+          className={`transition-all duration-700 ease-out transform ${
+            showContent
+              ? "translate-y-0 opacity-100"
+              : "translate-y-8 opacity-0"
+          }`}
+        >
+          {/* Enhanced Input Section */}
+          <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 mb-8 border border-slate-700/40 hover:border-slate-600/40 transition-all duration-300">
+            <h2 className="text-xl font-semibold mb-4 flex items-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+              <HiOutlineLightningBolt className="h-5 w-5 mr-2 text-purple-400" />
+              Ask CodeGenius
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <textarea
+                  value={userPrompt}
+                  onChange={(e) => setUserPrompt(e.target.value)}
+                  placeholder="Ask a coding question or request code..."
+                  required
+                  rows={4}
+                  className="w-full px-5 py-4 bg-slate-900/60 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/70 transition-all text-white placeholder-gray-400 shadow-inner relative z-10 text-base resize-none"
+                />
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-7 py-3 rounded-xl font-medium transition-all flex items-center shadow-lg hover:shadow-purple-500/20 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  {isLoading ? (
+                    <>
+                      <BiLoaderAlt className="animate-spin h-5 w-5 mr-2" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <HiOutlineLightningBolt className="h-5 w-5 mr-2" />
+                      Generate Code
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+          {codeBlock && (
+            <div className="transition-all duration-500 ease-out animate-fadeIn">
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="text-xl font-semibold flex items-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                  <HiOutlineCode className="h-5 w-5 mr-2 text-purple-400" />
+                  Extracted Code
+                </h2>
+                <button
+                  onClick={handleCopyCode}
+                  className="text-sm bg-slate-800/70 hover:bg-slate-700/70 px-4 py-2 rounded-lg transition-all duration-200 flex items-center shadow-md border border-slate-700/50 hover:border-slate-600 group"
+                >
+                  {isCopied ? (
+                    <>
+                      <HiOutlineCheck className="w-4 h-4 mr-1.5 text-green-400" />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <HiOutlineClipboard className="w-4 h-4 mr-1.5 group-hover:text-purple-300 transition-colors" />
+                      Copy Code
+                    </>
+                  )}
+                </button>
+              </div>
+              <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-slate-700/40 hover:border-slate-600/40 transition-all duration-300">
+                <div className="flex items-center justify-between px-4 py-2 bg-slate-900/60 border-b border-slate-700/50">
+                  <div className="flex space-x-2">
+                    <BsCircleFill className="w-3 h-3 text-red-500/70" />
+                    <BsCircleFill className="w-3 h-3 text-yellow-500/70" />
+                    <BsCircleFill className="w-3 h-3 text-green-500/70" />
+                  </div>
+                  <div className="text-xs text-slate-400">code.js</div>
+                </div>
+                <SyntaxHighlighter
+                  style={dracula}
+                  language="javascript"
+                  className="rounded-b-xl"
+                  wrapLongLines={true}
+                  customStyle={{ padding: "1.5rem" }}
+                >
+                  {codeBlock}
+                </SyntaxHighlighter>
+              </div>
+            </div>
+          )}
+
+          {aiResponse && (
+            <div className="transition-all duration-500 ease-out mb-8 animate-fadeIn">
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="text-xl font-semibold flex items-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                  <HiOutlineDocument className="h-5 w-5 mr-2 text-purple-400" />
+                  AI Response
+                </h2>
+                <button
+                  onClick={handleCopy}
+                  className="text-sm bg-slate-800/70 hover:bg-slate-700/70 px-4 py-2 rounded-lg transition-all duration-200 flex items-center shadow-md border border-slate-700/50 hover:border-slate-600 group"
+                >
+                  {isCopied ? (
+                    <>
+                      <HiOutlineCheck className="w-4 h-4 mr-1.5 text-green-400" />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <HiOutlineClipboard className="w-4 h-4 mr-1.5 group-hover:text-purple-300 transition-colors" />
+                      Copy Response
+                    </>
+                  )}
+                </button>
+              </div>
+              <div className="bg-slate-800/40 backdrop-blur-xl rounded-2xl shadow-2xl p-6 overflow-hidden border border-slate-700/40 hover:border-slate-600/40 transition-all duration-300">
+                <div className="prose prose-invert prose-sm sm:prose-base lg:prose-lg max-w-none">
+                  <ReactMarkdown
+                    components={{
+                      code({ node, inline, className, children, ...props }) {
+                        const match = /language-(\w+)/.exec(className || "");
+                        return !inline && match ? (
+                          <SyntaxHighlighter
+                            style={dracula}
+                            language={match[1]}
+                            PreTag="div"
+                            className="rounded-xl my-4 shadow-lg"
+                            {...props}
+                          >
+                            {String(children).replace(/\n$/, "")}
+                          </SyntaxHighlighter>
+                        ) : (
+                          <code
+                            className={`${className} bg-slate-800/70 px-1.5 py-0.5 rounded text-sm`}
+                            {...props}
+                          >
+                            {children}
+                          </code>
+                        );
+                      },
+                    }}
+                  >
+                    {aiResponse}
+                  </ReactMarkdown>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
