@@ -59,9 +59,11 @@ export default function Home() {
             </div>
 
             <button
-              onClick={signInWithGoogle}
+              onClick={handleSignIn}
               disabled={isLoading}
-              className="w-full relative group flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-slate-800 font-medium py-3 px-4 rounded-xl transition-all duration-300 overflow-hidden hover:shadow-lg"
+              className={`w-full relative group flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-slate-800 font-medium py-3 px-4 rounded-xl transition-all duration-300 overflow-hidden ${
+                isLoading ? "opacity-75 cursor-not-allowed" : "hover:shadow-lg"
+              }`}
             >
               <span className="absolute inset-0 w-0 bg-gradient-to-r from-blue-50 to-blue-100 transition-all duration-500 ease-out group-hover:w-full"></span>
               <span className="relative flex items-center gap-2">
@@ -142,7 +144,7 @@ function Button({ onClick, children }) {
 
         <div className="bg-slate-900 bg-opacity-50 p-4 text-center">
           <p className="text-xs text-gray-400">
-            © {new Date().getFullYear} CodeGenius • Welcome, Developer
+            © {new Date().getFullYear()} CodeGenius • Welcome, Developer
           </p>
         </div>
       </div>

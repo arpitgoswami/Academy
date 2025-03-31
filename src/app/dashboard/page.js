@@ -2,7 +2,8 @@
 
 import { useAuth, signOutUser } from "../firebase";
 import { useState, useEffect } from "react";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { generateAIResponse } from "../services/aiGeneration";
+import { enhancePrompt } from "../services/promptEnhancement";
 import ReactMarkdown from "react-markdown";
 
 import { HiOutlineLogout, HiOutlineLightningBolt } from "react-icons/hi";
@@ -15,6 +16,7 @@ export default function Dashboard() {
   const [userPrompt, setUserPrompt] = useState("");
   const [copiedBlockId, setCopiedBlockId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
   const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
@@ -26,14 +28,7 @@ export default function Dashboard() {
     setIsLoading(true);
     setAiResponse("Thinking...");
     try {
-      const genAI = new GoogleGenerativeAI(
-        "AIzaSyDyO3RcVB1iXrGt16uIoZ0hDWiSbHbsXp4"
-      );
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-      const result = await model.generateContent(userPrompt);
-      const responseText = result.response.text();
-
+      const responseText = await generateAIResponse(userPrompt, user);
       setAiResponse(responseText);
       setCopiedBlockId(null);
     } catch (error) {
@@ -110,7 +105,38 @@ export default function Dashboard() {
                   className="w-full px-5 py-4 bg-slate-900/60 border border-slate-700/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/70 transition-all text-white placeholder-gray-400 shadow-inner relative z-10 text-base resize-none"
                 />
               </div>
-              <div className="flex justify-end">
+              <div className="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  disabled={isEnhancing || !userPrompt}
+                  onClick={async () => {
+                    setIsEnhancing(true);
+                    try {
+                      const enhancedPrompt = await enhancePrompt(
+                        userPrompt,
+                        user
+                      );
+                      setUserPrompt(enhancedPrompt);
+                    } catch (error) {
+                      console.error("Error enhancing prompt:", error);
+                    } finally {
+                      setIsEnhancing(false);
+                    }
+                  }}
+                  className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white px-5 py-3 rounded-xl font-medium transition-all flex items-center shadow-lg hover:shadow-blue-500/20 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  {isEnhancing ? (
+                    <>
+                      <BiLoaderAlt className="animate-spin h-5 w-5 mr-2" />
+                      Enhancing...
+                    </>
+                  ) : (
+                    <>
+                      <HiOutlineLightningBolt className="h-5 w-5 mr-2" />
+                      Enhance Prompt
+                    </>
+                  )}
+                </button>
                 <button
                   type="submit"
                   disabled={isLoading}
