@@ -1,4 +1,4 @@
-import { db } from "../firebase";
+import { db } from "../app/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export const storePrompt = async (user, promptText, type, response = null) => {

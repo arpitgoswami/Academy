@@ -12,7 +12,6 @@ export const enhancePrompt = async (originalPrompt, user) => {
     const result = await model.generateContent(enhancementPrompt);
     const enhancedPrompt = result.response.text();
 
-    // Store both the original and enhanced prompts
     await storePrompt(user, originalPrompt, "enhancement", enhancedPrompt);
 
     return enhancedPrompt;
