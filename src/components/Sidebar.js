@@ -43,7 +43,7 @@ export default function Sidebar({ isOpen, onClose }) {
             />
           </svg>
         </div>
-        <span className="text-lg font-semibold">perplexity</span>
+        <span className="text-lg font-semibold">Armix Academy</span>
       </div>
 
       {/* Sidebar Menu */}

@@ -87,7 +87,7 @@ export default function Dashboard() {
               }`}
             >
               {/* Title hidden on smaller screens for cleaner look, shown on md+ */}
-              <h1 className="text-3xl md:text-4xl font-semibold mb-8 md:mb-12 text-center hidden md:block">
+              <h1 className="text-3xl md:text-4xl mb-8 md:mb-12 text-center hidden md:block">
                 What do you want to know?
               </h1>
 
