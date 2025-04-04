@@ -69,7 +69,6 @@ export default function Dashboard() {
       )}
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col md:ml-64">
-        {" "}
         {/* Add margin-left on desktop */}
         {/* Mobile Header */}
         <Header onMenuClick={toggleSidebar} />
@@ -77,20 +76,15 @@ export default function Dashboard() {
         <div className="flex-1 flex flex-col overflow-y-auto">
           {" "}
           {/* Make this part scrollable */}
-          <main className="flex-1 container mx-auto px-4 sm:px-6 py-8 md:py-10 max-w-3xl">
+          <main className="flex-1 container bg-green-100 mx-auto px-4 sm:px-6 py-8 md:py-10 max-w-3xl">
             {" "}
             {/* Adjusted padding */}
             <div
-              className={`transition-opacity duration-500 ease-out ${
+              className={`transition-opacity h-full duration-500 ease-out ${
                 // Simpler transition
                 showContent ? "opacity-100" : "opacity-0"
               }`}
             >
-              {/* Title hidden on smaller screens for cleaner look, shown on md+ */}
-              <h1 className="text-3xl md:text-4xl mb-8 md:mb-12 text-center hidden md:block">
-                What do you want to know?
-              </h1>
-
               <InputForm
                 userPrompt={userPrompt}
                 setUserPrompt={setUserPrompt}
@@ -99,6 +93,8 @@ export default function Dashboard() {
                 isEnhancing={isEnhancing}
                 setIsEnhancing={setIsEnhancing}
                 user={user}
+                setAiResponse={setAiResponse} // Pass setAiResponse down
+                disabled={isLoading ? "hidden" : "block"}
               />
 
               <ResponseDisplay aiResponse={aiResponse} />
