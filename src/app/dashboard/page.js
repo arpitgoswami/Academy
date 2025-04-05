@@ -2,23 +2,22 @@
 
 import { useAuth } from "../firebase";
 import { useState, useEffect } from "react";
-import { generateAIResponse } from "../../services/aiGeneration"; // Corrected path
 
-// Import the components
 import Sidebar from "../../components/Sidebar";
 import InputForm from "../../components/InputForm";
 import ResponseDisplay from "../../components/ResponseDisplay";
 import DashboardFooter from "../../components/DashboardFooter";
-import Header from "../../components/Header"; // Import the new Header
+import Header from "../../components/Header";
 
 export default function Dashboard() {
   const user = useAuth();
   const [aiResponse, setAiResponse] = useState("");
+  const [sources, setSources] = useState([]);
   const [userPrompt, setUserPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [showContent, setShowContent] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State for mobile sidebar
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     setShowContent(true);
@@ -29,19 +28,34 @@ export default function Dashboard() {
     if (!userPrompt.trim() || isLoading) return;
 
     setIsLoading(true);
-    setAiResponse(""); // Clear previous response before streaming
+    setAiResponse("");
 
     try {
-      // Define the callback function for streaming updates
-      const handleChunk = (chunk) => {
-        setAiResponse((prev) => prev + chunk); // Append the new chunk to the existing response
-      };
+      const response = await fetch("/api/ai-generation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt: userPrompt,
+          user,
+        }),
+      });
 
-      // Call generateAIResponse with the callback
-      // Note: We don't need the return value here anymore as state is updated via callback
-      await generateAIResponse(userPrompt, user, handleChunk);
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.statusText}`);
+      }
 
-      // The full response is aggregated and stored within generateAIResponse itself
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        setAiResponse((prev) => prev + chunk);
+      }
     } catch (error) {
       console.error("Error fetching AI response:", error);
       setAiResponse("Error generating response.");
@@ -61,7 +75,7 @@ export default function Dashboard() {
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
-          onClick={toggleSidebar} // Close sidebar on overlay click
+          onClick={toggleSidebar}
         ></div>
       )}
       <div className="flex-1 flex flex-col md:ml-64">
@@ -82,14 +96,14 @@ export default function Dashboard() {
                 isEnhancing={isEnhancing}
                 setIsEnhancing={setIsEnhancing}
                 user={user}
-                setAiResponse={setAiResponse} // Pass setAiResponse down
+                setAiResponse={setAiResponse}
                 disabled={isLoading ? "hidden" : "block"}
+                setSources={setSources}
               />
 
-              <ResponseDisplay aiResponse={aiResponse} />
+              <ResponseDisplay aiResponse={aiResponse} sources={sources} />
             </div>
           </main>
-          {/* Footer sticks to bottom of this scrollable div */}
           <DashboardFooter />
         </div>
       </div>

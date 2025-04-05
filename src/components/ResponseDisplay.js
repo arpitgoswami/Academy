@@ -3,11 +3,11 @@
 import ReactMarkdown from "react-markdown";
 import { useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { a11yLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { BiLoaderAlt } from "react-icons/bi";
 import { FiCopy, FiCheck } from "react-icons/fi";
 
-export default function ResponseDisplay({ aiResponse }) {
+export default function ResponseDisplay({ aiResponse, sources }) {
   const [copiedBlockId, setCopiedBlockId] = useState(null);
   let codeBlockCounter = 0;
 
@@ -41,7 +41,7 @@ export default function ResponseDisplay({ aiResponse }) {
   }
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden p-8 mt-6 text-slate-800 dark:text-slate-200 leading-relaxed">
+    <div className="bg-white max-w-[100vw] md:max-w-[80vw] dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden p-8 mt-6 text-slate-800 dark:text-slate-200 leading-relaxed">
       <ReactMarkdown
         components={{
           code({ node, inline, className, children, ...props }) {
@@ -81,7 +81,7 @@ export default function ResponseDisplay({ aiResponse }) {
                       </button>
                     </div>
                     <SyntaxHighlighter
-                      style={a11yLight}
+                      style={atomDark}
                       language={language}
                       PreTag="div"
                       customStyle={{
@@ -162,19 +162,62 @@ export default function ResponseDisplay({ aiResponse }) {
         {aiResponse}
       </ReactMarkdown>
 
-      <div className="mt-8 pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+      {/* Sources Section - Updated Styling */}
+      {sources && sources.length > 0 && (
+        <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+          <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-3">
+            Sources
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {sources.map((source, index) => {
+              const domain = new URL(source).hostname.replace(/^www\./, "");
+
+              const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=16`;
+
+              return (
+                <a
+                  key={index}
+                  href={source.url || source} // Handle both object and string sources for now
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block p-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors duration-150"
+                >
+                  <div className="flex items-center mb-1.5">
+                    <img
+                      src={faviconUrl}
+                      alt={`${domain} favicon`}
+                      className="w-4 h-4 mr-2 rounded-sm"
+                      onError={(e) => (e.target.style.display = "none")} // Hide if favicon fails
+                    />
+                    <span className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                      {domain}
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-snug">
+                    {source.title || domain}{" "}
+                    {/* Display title or fallback to domain */}
+                  </p>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="mt-6 flex justify-end">
         <button
           onClick={() => handleCopy(aiResponse, "full-response")}
-          className={`px-4 py-2 rounded-md text-sm font-medium ${
-            copiedBlockId === "full-response"
-              ? "bg-green-600 text-white cursor-default"
-              : "bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200"
-          } transition-all duration-200`}
+          className="custom-button"
           disabled={copiedBlockId === "full-response"}
         >
-          {copiedBlockId === "full-response"
-            ? "✓ Copied"
-            : "Copy Full Response"}
+          {copiedBlockId === "full-response" ? (
+            "Copied"
+          ) : (
+            <>
+              <FiCopy className="mr-1" />
+              Copy Response
+            </>
+          )}
         </button>
       </div>
     </div>

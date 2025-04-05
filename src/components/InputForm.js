@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { BiLoaderAlt } from "react-icons/bi";
 import { BsLink45Deg, BsGlobe, BsChevronRight } from "react-icons/bs";
-import { RiLightbulbLine } from "react-icons/ri";
 import { FaMicrophone, FaStopCircle } from "react-icons/fa";
 import { enhancePrompt } from "../services/promptEnhancement";
 // Removed import for webSearch service
@@ -17,8 +16,8 @@ export default function InputForm({
   setIsEnhancing,
   user,
   disabled,
-  // Add setAiResponse to update the display after search
   setAiResponse,
+  setSources,
 }) {
   const [isListening, setIsListening] = useState(false);
   const [isSearchingWeb, setIsSearchingWeb] = useState(false); // State for web search loading
@@ -112,6 +111,7 @@ export default function InputForm({
 
       // Update the main response display with just the answer string
       setAiResponse(searchResult.answer || "No answer found.");
+      setSources(searchResult.sources || "No sources found.");
     } catch (error) {
       console.error("Error performing web search:", error);
       // Display error string to the user
@@ -159,7 +159,7 @@ export default function InputForm({
               type="button"
               disabled={isEnhancing || !userPrompt}
               onClick={handleEnhanceClick}
-              className="flex items-center sp px-2 py-1 text-xs rounded-md bg-slate-100 dark:bg-slate-800 text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="custom-button"
             >
               {isEnhancing ? (
                 <>
