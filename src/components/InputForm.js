@@ -6,7 +6,7 @@ import { BsLink45Deg, BsGlobe, BsChevronRight } from "react-icons/bs";
 import { RiLightbulbLine } from "react-icons/ri";
 import { FaMicrophone, FaStopCircle } from "react-icons/fa";
 import { enhancePrompt } from "../services/promptEnhancement";
-import { performWebSearch } from "../services/webSearch"; // Import the new service
+// Removed import for webSearch service
 
 export default function InputForm({
   userPrompt,
@@ -96,23 +96,25 @@ export default function InputForm({
   const handleWebSearchClick = async () => {
     if (!userPrompt || isSearchingWeb || isLoading) return; // Prevent search if busy or no prompt
     setIsSearchingWeb(true);
-    setAiResponse("Performing web search..."); // Provide feedback
+    setAiResponse("Performing web search..."); // Update loading state with a string
     try {
-      // Pass the current prompt and user object
-      const searchResult = await performWebSearch(userPrompt, user);
-      console.log("Web Search Result:", searchResult);
-      // Update the main response display with a summary or snippets
-      // For now, let's just show the summary. You might want a more complex display later.
-      setAiResponse(
-        searchResult.summary +
-          "\n\n" +
-          searchResult.snippets
-            .map((s) => `- ${s.title}: ${s.snippet}`)
-            .join("\n")
+      const response = await fetch(
+        `/api/search?q=${encodeURIComponent(userPrompt)}`
       );
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(
+          `API request failed: ${response.statusText} - ${errorData}`
+        );
+      }
+      const searchResult = await response.json();
+      console.log("Web Search API Result:", searchResult);
+
+      // Update the main response display with just the answer string
+      setAiResponse(searchResult.answer || "No answer found.");
     } catch (error) {
       console.error("Error performing web search:", error);
-      // Display error to the user
+      // Display error string to the user
       setAiResponse(`Error performing web search: ${error.message}`);
     } finally {
       setIsSearchingWeb(false);
@@ -120,7 +122,7 @@ export default function InputForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className={`mb-10 ${disabled}`}>
+    <form onSubmit={handleSubmit} className="mb-10">
       {/* Title hidden on smaller screens for cleaner look, shown on md+ */}
       <h1 className="text-3xl md:text-3xl mb-8 text-center hidden md:block font-normal">
         What do you want to know?

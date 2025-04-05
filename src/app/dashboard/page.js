@@ -56,32 +56,21 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 flex flex-col md:flex-row">
-      {" "}
-      {/* Adjust flex direction */}
-      {/* Sidebar */}
+      {""}
       <Sidebar isOpen={isSidebarOpen} onClose={toggleSidebar} />
-      {/* Overlay for mobile when sidebar is open */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
           onClick={toggleSidebar} // Close sidebar on overlay click
         ></div>
       )}
-      {/* Main Content Area */}
       <div className="flex-1 flex flex-col md:ml-64">
-        {/* Add margin-left on desktop */}
-        {/* Mobile Header */}
         <Header onMenuClick={toggleSidebar} />
-        {/* Main scrollable content */}
         <div className="flex-1 flex flex-col overflow-y-auto">
           {" "}
-          {/* Make this part scrollable */}
-          <main className="flex-1 container bg-green-100 mx-auto px-4 sm:px-6 py-8 md:py-10 max-w-3xl">
-            {" "}
-            {/* Adjusted padding */}
+          <main className="flex-1 container mx-auto px-4 sm:px-6 py-8 md:py-10 max-w-full">
             <div
               className={`transition-opacity h-full duration-500 ease-out ${
-                // Simpler transition
                 showContent ? "opacity-100" : "opacity-0"
               }`}
             >

@@ -1,146 +1,182 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
-import { useState } from "react"; // Need useState for internal copied state
+import { useState } from "react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { a11yLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { BiLoaderAlt } from "react-icons/bi";
+import { FiCopy, FiCheck } from "react-icons/fi";
 
 export default function ResponseDisplay({ aiResponse }) {
   const [copiedBlockId, setCopiedBlockId] = useState(null);
-  let codeBlockCounter = 0; // Keep counter local to this component instance
+  let codeBlockCounter = 0;
 
   const handleCopy = (text, blockId) => {
     navigator.clipboard.writeText(text).then(() => {
       setCopiedBlockId(blockId);
-      setTimeout(() => setCopiedBlockId(null), 2000); // Reset after 2 seconds
+      setTimeout(() => setCopiedBlockId(null), 2000);
     });
   };
 
-  // Avoid rendering if no response or just the placeholder/error messages
   if (
     !aiResponse ||
     aiResponse === "Thinking..." ||
-    aiResponse === "Error generating response."
+    aiResponse.startsWith("Error generating response") ||
+    aiResponse.startsWith("Error performing web search")
   ) {
-    if (
-      aiResponse === "Thinking..." ||
-      aiResponse === "Error generating response."
-    ) {
-      // Optionally render the placeholder/error message with specific styling
+    if (aiResponse) {
       return (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden p-6 mt-6 text-center text-slate-500">
-          {aiResponse}
+        <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-6 mt-6 text-center text-slate-600 dark:text-slate-400 italic">
+          {aiResponse === "Thinking..." ? (
+            <span className="flex items-center justify-center">
+              <BiLoaderAlt className="animate-spin mr-2 h-4 w-4" /> Thinking...
+            </span>
+          ) : (
+            aiResponse
+          )}
         </div>
       );
     }
-    return null; // Don't render anything if aiResponse is empty/null
+    return null;
   }
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden p-6 mt-6">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden p-8 mt-6 text-slate-800 dark:text-slate-200 leading-relaxed">
       <ReactMarkdown
         components={{
           code({ node, inline, className, children, ...props }) {
+            const match = /language-(\w+)/.exec(className || "");
+            const language = match ? match[1] : undefined;
             const codeString = String(children).replace(/\n$/, "");
-            if (!inline) {
-              const blockId = `code-block-${codeBlockCounter++}`;
-              const isCopied = copiedBlockId === blockId;
 
-              return (
-                <div className="relative my-4">
-                  {" "}
-                  {/* Adjusted margin */}
-                  <button
-                    onClick={() => handleCopy(codeString, blockId)}
-                    className="absolute top-2 right-2 bg-slate-700 hover:bg-slate-600 text-white p-1.5 rounded text-xs flex items-center transition-colors z-10" // Adjusted padding and z-index
-                  >
-                    {isCopied ? "Copied!" : "Copy"}
-                  </button>
-                  <pre className="overflow-x-auto p-4 bg-slate-100 dark:bg-slate-800 rounded-md text-slate-900 dark:text-slate-100 text-sm">
-                    {" "}
-                    {/* Adjusted font size */}
-                    <code {...props} className={className}>
+            if (!inline) {
+              if (language) {
+                const blockId = `code-block-${codeBlockCounter++}`;
+                const isCopied = copiedBlockId === blockId;
+
+                return (
+                  <div className="rounded-md overflow-hidden border border-slate-200 dark:border-slate-700">
+                    <div className="flex justify-between items-center px-2 py-2 bg-slate-100 dark:bg-slate-800 text-xs text-slate-600 dark:text-slate-400">
+                      <span className="font-mono">{language}</span>
+                      <button
+                        onClick={() => handleCopy(codeString, blockId)}
+                        className={`flex items-center gap-1.5 p-1 rounded ${
+                          isCopied
+                            ? "text-green-500"
+                            : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
+                        } transition-colors duration-200`}
+                        aria-label={isCopied ? "Copied" : "Copy code"}
+                      >
+                        {isCopied ? (
+                          <>
+                            <FiCheck className="h-4 w-4" />
+                            <span>Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <FiCopy className="h-4 w-4" />
+                            <span>Copy code</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <SyntaxHighlighter
+                      style={a11yLight}
+                      language={language}
+                      PreTag="div"
+                      customStyle={{
+                        margin: 0,
+                        padding: "1rem",
+                        flexWrap: "wrap",
+                        fontSize: "0.9rem",
+                        backgroundColor: "transparent",
+                      }}
+                    >
                       {codeString}
-                    </code>
-                  </pre>
-                </div>
-              );
+                    </SyntaxHighlighter>
+                  </div>
+                );
+              } else {
+                return (
+                  <code className="bg-slate-100 p-1 rounded-md">
+                    {codeString}
+                  </code>
+                );
+              }
             }
-            // Inline code style
             return (
               <code
-                className={`bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-sm text-red-600 dark:text-red-400 ${className}`} // Adjusted inline style
+                className={`bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-xs text-red-600 dark:text-red-400 ${
+                  className || ""
+                }`}
                 {...props}
               >
                 {codeString}
               </code>
             );
           },
-          // Add other markdown element styling if needed
-          p(props) {
-            return <p className="mb-4 last:mb-0" {...props} />;
-          },
-          ul(props) {
-            return (
-              <ul className="list-disc list-inside mb-4 pl-4" {...props} />
-            );
-          },
-          ol(props) {
-            return (
-              <ol className="list-decimal list-inside mb-4 pl-4" {...props} />
-            );
-          },
-          li(props) {
-            return <li className="mb-1" {...props} />;
-          },
-          h1(props) {
-            return (
-              <h1
-                className="text-2xl font-semibold mb-4 border-b pb-2"
-                {...props}
-              />
-            );
-          },
-          h2(props) {
-            return <h2 className="text-xl font-semibold mb-3" {...props} />;
-          },
-          h3(props) {
-            return <h3 className="text-lg font-semibold mb-2" {...props} />;
-          },
-          blockquote(props) {
-            return (
-              <blockquote
-                className="border-l-4 border-slate-300 dark:border-slate-700 pl-4 italic my-4"
-                {...props}
-              />
-            );
-          },
-          a(props) {
-            return (
-              <a
-                className="text-teal-600 dark:text-teal-400 hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-                {...props}
-              />
-            );
-          },
+          p: ({ node, ...props }) => (
+            <p className="mb-5 last:mb-0" {...props} />
+          ),
+          ul: ({ node, ...props }) => (
+            <ul
+              className="list-disc list-outside mb-5 pl-6 space-y-1"
+              {...props}
+            />
+          ),
+          ol: ({ node, ...props }) => (
+            <ol
+              className="list-decimal list-outside mb-5 pl-6 space-y-1"
+              {...props}
+            />
+          ),
+          li: ({ node, ...props }) => <li className="mb-1.5" {...props} />,
+          h1: ({ node, ...props }) => (
+            <h1
+              className="text-3xl font-bold mt-6 mb-4 border-b border-slate-300 dark:border-slate-700 pb-2"
+              {...props}
+            />
+          ),
+          h2: ({ node, ...props }) => (
+            <h2 className="text-2xl font-semibold mt-5 mb-3" {...props} />
+          ),
+          h3: ({ node, ...props }) => (
+            <h3 className="text-xl font-semibold mt-4 mb-2" {...props} />
+          ),
+          blockquote: ({ node, ...props }) => (
+            <blockquote
+              className="border-l-4 border-teal-500 bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 pl-4 py-2 italic my-5"
+              {...props}
+            />
+          ),
+          a: ({ node, ...props }) => (
+            <a
+              className="text-teal-600 dark:text-teal-400 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+              {...props}
+            />
+          ),
         }}
       >
         {aiResponse}
       </ReactMarkdown>
 
-      {/* Copy Full Response Button */}
-      <button
-        onClick={() => handleCopy(aiResponse, "full-response")}
-        className={`mt-4 px-4 py-2 rounded-lg text-sm ${
-          copiedBlockId === "full-response"
-            ? "bg-green-600 text-white"
-            : "bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-white"
-        } transition-colors`}
-      >
-        {copiedBlockId === "full-response"
-          ? "Full Response Copied!"
-          : "Copy Full Response"}
-      </button>
+      <div className="mt-8 pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+        <button
+          onClick={() => handleCopy(aiResponse, "full-response")}
+          className={`px-4 py-2 rounded-md text-sm font-medium ${
+            copiedBlockId === "full-response"
+              ? "bg-green-600 text-white cursor-default"
+              : "bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200"
+          } transition-all duration-200`}
+          disabled={copiedBlockId === "full-response"}
+        >
+          {copiedBlockId === "full-response"
+            ? "✓ Copied"
+            : "Copy Full Response"}
+        </button>
+      </div>
     </div>
   );
 }
