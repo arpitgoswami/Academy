@@ -1,5 +1,4 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { storePrompt } from "../../../services/promptStorage";
 import { NextResponse } from "next/server";
 
 const API_KEY = "AIzaSyDyO3RcVB1iXrGt16uIoZ0hDWiSbHbsXp4";
@@ -33,9 +32,6 @@ export async function POST(request) {
           aggregatedResponseText += chunkText;
           await writer.write(encoder.encode(chunkText));
         }
-
-        // Store the complete response after streaming
-        await storePrompt(user, prompt, "generation", "abc");
 
         writer.close();
       } catch (error) {

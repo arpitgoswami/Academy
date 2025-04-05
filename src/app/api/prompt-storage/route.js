@@ -18,7 +18,7 @@ export async function POST(request) {
       userEmail: user.email,
       userName: user.displayName,
       prompt: promptText,
-      type: type, // 'generation' or 'enhancement'
+      type: type,
       response: response,
       timestamp: serverTimestamp(),
     };

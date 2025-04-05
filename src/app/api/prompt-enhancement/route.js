@@ -1,5 +1,4 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { storePrompt } from "../../../services/promptStorage";
 import { NextResponse } from "next/server";
 
 const API_KEY = "AIzaSyDyO3RcVB1iXrGt16uIoZ0hDWiSbHbsXp4";
@@ -80,8 +79,6 @@ export async function POST(request) {
 
     const result = await model.generateContent(universalEnhancementPrompt);
     const enhancedPrompt = result.response.text();
-
-    await storePrompt(user, originalPrompt, "enhancement", enhancedPrompt);
 
     return NextResponse.json({
       enhancedPrompt,
