@@ -35,7 +35,7 @@ export async function POST(request) {
         }
 
         // Store the complete response after streaming
-        await storePrompt(user, prompt, "generation", aggregatedResponseText);
+        await storePrompt(user, prompt, "generation", "abc");
 
         writer.close();
       } catch (error) {
