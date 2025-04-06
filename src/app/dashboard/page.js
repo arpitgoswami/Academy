@@ -65,23 +65,34 @@ export default function Dashboard() {
     }
   };
 
-  // Add web search handler
   const handleWebSearchClick = async () => {
-    if (!userPrompt || isSearchingWeb || isLoading) return;
+    if (!userPrompt || isSearchingWeb || isLoading) return; // Prevent search if busy or no prompt
     setIsSearchingWeb(true);
-    setIsLoading(true); // Also set general loading state
-    setAiResponse("Performing web search...");
-    setSources([]); // Clear previous sources
+    setAiResponse("Performing web search..."); // Update loading state with a string
+    try {
+      const response = await fetch(
+        `/api/search?q=${encodeURIComponent(userPrompt)}`
+      );
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(
+          `API request failed: ${response.statusText} - ${errorData}`
+        );
+      }
+      const searchResult = await response.json();
+      console.log("Web Search API Result:", searchResult);
 
-    // Simulate web search API call
-    setTimeout(() => {
-      setAiResponse("Simulated web search results for: " + userPrompt);
-      setSources(["simulated-source1.com", "simulated-source2.net"]); // Update sources
+      // Update the main response display with just the answer string
+      setAiResponse(searchResult.answer || "No answer found.");
+      setSources(searchResult.sources || "No sources found.");
+    } catch (error) {
+      console.error("Error performing web search:", error);
+      // Display error string to the user
+      setAiResponse(`Error performing web search: ${error.message}`);
+    } finally {
       setIsSearchingWeb(false);
-      setIsLoading(false); // Clear general loading state
-    }, 2000);
+    }
   };
-
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };

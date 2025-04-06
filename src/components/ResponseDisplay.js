@@ -27,9 +27,12 @@ export default function ResponseDisplay({ aiResponse, sources }) {
     if (aiResponse) {
       return (
         <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-md p-8 mt-6 text-center text-slate-600 dark:text-slate-400 italic flex items-center justify-center min-h-32">
-          {aiResponse === "Thinking..." ? (
+          {/* Show loader for both Thinking and Web Search states */}
+          {aiResponse === "Thinking..." ||
+          aiResponse === "Performing web search..." ? (
             <span className="flex items-center justify-center">
               <BiLoaderAlt className="animate-spin mr-2 h-5 w-5 text-teal-500" />
+              {/* Keep text as Thinking... or adjust if needed */}
               <span className="text-lg">Thinking...</span>
             </span>
           ) : (
