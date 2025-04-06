@@ -128,10 +128,9 @@ export default function Dashboard() {
               disabled={isLoading ? "hidden" : "block"}
               setSources={setSources}
             />
-
-            <ResponseDisplay aiResponse={aiResponse} sources={sources} />
           </div>
         </main>
+        <ResponseDisplay aiResponse={aiResponse} sources={sources} />
         <DashboardFooter />
       </div>
     </div>
