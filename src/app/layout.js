@@ -6,9 +6,9 @@ import "./styles/custom.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Armix Academy - Simplify Research & Lesson Planning",
+  title: "Academy - Simplify Research & Lesson Planning",
   description:
-    "ARMIX Academy streamlines research for university teachers by generating notes, code snippets, and conducting web searches. Save time and enhance your scholarly work effortlessly.",
+    "Academy streamlines research for university teachers by generating notes, code snippets, and conducting web searches. Save time and enhance your scholarly work effortlessly.",
 };
 
 export const viewport = {

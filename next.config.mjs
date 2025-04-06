@@ -8,6 +8,12 @@ const nextConfig = {
         port: "",
         pathname: "/a/**",
       },
+      {
+        protocol: "https",
+        hostname: "pplx-res.cloudinary.com",
+        port: "",
+        pathname: "/image/**",
+      },
     ],
   },
 };

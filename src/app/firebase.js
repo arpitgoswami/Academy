@@ -53,7 +53,7 @@ export const useAuth = () => {
       if (currentUser) {
         router.push("/dashboard");
       } else {
-        router.push("/");
+        router.push("/login");
       }
     });
 

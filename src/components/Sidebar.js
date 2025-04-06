@@ -57,7 +57,7 @@ export default function Sidebar({ isOpen, onClose }) {
             Academy
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            Learning Platform
+            Research Platform
           </p>
         </div>
       </div>

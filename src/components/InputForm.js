@@ -4,24 +4,35 @@ import { useState, useEffect, useRef } from "react";
 import { BiLoaderAlt } from "react-icons/bi";
 import { BsLink45Deg, BsGlobe, BsChevronRight } from "react-icons/bs";
 import { FaMicrophone, FaStopCircle } from "react-icons/fa";
+import { RiMagicLine } from "react-icons/ri";
+import { IoSearchOutline } from "react-icons/io5";
+import { MdClear } from "react-icons/md";
+import { FiExternalLink } from "react-icons/fi";
+import { HiTranslate } from "react-icons/hi";
+import { GrAttachment } from "react-icons/gr";
 import { enhancePrompt } from "../services/promptEnhancement";
-// Removed import for webSearch service
+import { LuMoonStar } from "react-icons/lu";
+import Image from "next/image";
 
-export default function InputForm({
-  userPrompt,
-  setUserPrompt,
-  handleSubmit,
-  isLoading,
-  isEnhancing,
-  setIsEnhancing,
-  user,
-  disabled,
-  setAiResponse,
-  setSources,
-}) {
+import Tooltip from "./Tooltip";
+
+export default function ChatInterface() {
+  const [userPrompt, setUserPrompt] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [isSearchingWeb, setIsSearchingWeb] = useState(false); // State for web search loading
+  const [isSearchingWeb, setIsSearchingWeb] = useState(false);
+  const [aiResponse, setAiResponse] = useState("");
+  const [sources, setSources] = useState([]);
+  const [weather, setWeather] = useState({
+    temp: "27°C",
+    location: "Chandigarh",
+    h: "38°",
+    l: "20°",
+  });
+
   const recognitionRef = useRef(null);
+  const textareaRef = useRef(null);
 
   useEffect(() => {
     const SpeechRecognition =
@@ -65,7 +76,22 @@ export default function InputForm({
         recognitionRef.current.stop();
       }
     };
-  }, [setUserPrompt, userPrompt]);
+  }, [userPrompt]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!userPrompt.trim() || isLoading) return;
+
+    setIsLoading(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      setAiResponse(
+        "This is a simulated response based on your query: " + userPrompt
+      );
+      setIsLoading(false);
+    }, 1500);
+  };
 
   const handleListenClick = () => {
     if (!recognitionRef.current) return;
@@ -83,154 +109,244 @@ export default function InputForm({
     if (!userPrompt || isEnhancing) return;
     setIsEnhancing(true);
     try {
-      const enhancedPrompt = await enhancePrompt(userPrompt, user);
-      setUserPrompt(enhancedPrompt);
+      // Simulate enhancing prompt
+      setTimeout(() => {
+        setUserPrompt(
+          userPrompt + " (enhanced with more context and specificity)"
+        );
+        setIsEnhancing(false);
+      }, 1000);
     } catch (error) {
       console.error("Error enhancing prompt:", error);
-    } finally {
       setIsEnhancing(false);
     }
   };
 
   const handleWebSearchClick = async () => {
-    if (!userPrompt || isSearchingWeb || isLoading) return; // Prevent search if busy or no prompt
+    if (!userPrompt || isSearchingWeb || isLoading) return;
     setIsSearchingWeb(true);
-    setAiResponse("Performing web search..."); // Update loading state with a string
-    try {
-      const response = await fetch(
-        `/api/search?q=${encodeURIComponent(userPrompt)}`
-      );
-      if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(
-          `API request failed: ${response.statusText} - ${errorData}`
-        );
-      }
-      const searchResult = await response.json();
-      console.log("Web Search API Result:", searchResult);
+    setAiResponse("Performing web search...");
 
-      // Update the main response display with just the answer string
-      setAiResponse(searchResult.answer || "No answer found.");
-      setSources(searchResult.sources || "No sources found.");
-    } catch (error) {
-      console.error("Error performing web search:", error);
-      // Display error string to the user
-      setAiResponse(`Error performing web search: ${error.message}`);
-    } finally {
+    // Simulate web search
+    setTimeout(() => {
+      setAiResponse("Web search results for: " + userPrompt);
+      setSources(["source1.com", "source2.com"]);
       setIsSearchingWeb(false);
+    }, 2000);
+  };
+
+  const handleClear = () => {
+    setUserPrompt("");
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "44px";
+      textareaRef.current.focus();
     }
   };
 
+  const newsItems = [
+    {
+      id: 1,
+      title: "Musk's Social Security Fraud Disclosure",
+      image: "https://via.placeholder.com/50",
+    },
+    {
+      id: 2,
+      title: "Musk Calls For Zero-Tariff Trade Zone With...",
+      image: "https://via.placeholder.com/50",
+    },
+  ];
+
   return (
-    <form onSubmit={handleSubmit} className="mb-10">
-      {/* Title hidden on smaller screens for cleaner look, shown on md+ */}
-      <h1 className="text-3xl md:text-3xl mb-8 text-center hidden md:block font-normal">
+    <div className="max-w-2xl mx-auto px-4">
+      <h1 className="text-3xl md:text-center mb-8 font-normal text-slate-800">
         What do you want to know?
       </h1>
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-4">
-          <textarea
-            value={userPrompt}
-            onChange={(e) => setUserPrompt(e.target.value)}
-            placeholder="Ask anything..."
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && e.shiftKey) {
-                e.preventDefault();
-                handleSubmit(e);
-              }
-            }}
-            required
-            rows={1}
-            className="w-full px-0 py-1 bg-transparent border-0 focus:outline-none focus:ring-0 text-sm resize-none"
-            style={{ minHeight: "44px" }}
-            onInput={(e) => {
-              e.target.style.height = "inherit";
-              e.target.style.height = `${e.target.scrollHeight}px`;
-            }}
-          />
-        </div>
 
-        <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
-          <div className="flex items-center space-x-2">
-            <div className="px-2 py-1 rounded-md bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200 text-xs font-medium">
-              Gemini 2.0 Flash
-            </div>
-            <button
-              type="button"
-              disabled={isEnhancing || !userPrompt}
-              onClick={handleEnhanceClick}
-              className="custom-button"
-            >
-              {isEnhancing ? (
-                <>
-                  <span>Enhancing...</span>
-                </>
-              ) : (
-                <>
-                  <span>Enhance Prompt</span>
-                </>
-              )}
-            </button>
+      <form onSubmit={handleSubmit} className="mb-10">
+        <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden">
+          <div className="p-4">
+            <textarea
+              ref={textareaRef}
+              value={userPrompt}
+              onChange={(e) => setUserPrompt(e.target.value)}
+              placeholder="Ask anything..."
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }
+              }}
+              className="w-full bg-transparent border-0 focus:outline-none focus:ring-0 text-sm resize-none"
+              style={{ minHeight: "44px" }}
+              onInput={(e) => {
+                e.target.style.height = "inherit";
+                e.target.style.height = `${e.target.scrollHeight}px`;
+              }}
+            />
           </div>
 
-          <div className="flex items-center space-x-1">
-            <button
-              type="button"
-              onClick={handleListenClick}
-              className={`p-2 rounded-md ${
-                isListening
-                  ? "text-red-500 bg-red-100 dark:bg-red-900 dark:text-red-300"
-                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-              } transition-colors`}
-              title={isListening ? "Stop Listening" : "Start Listening"}
-              // disabled={
-              //   !window.SpeechRecognition && !window.webkitSpeechRecognition
-              // }
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center space-x-2">
+              <div className="custom-model-name">Gemini 2.0 Flash</div>
+              <Tooltip text="Enhance your prompt" position="top">
+                <button
+                  type="button"
+                  disabled={isEnhancing || !userPrompt}
+                  onClick={handleEnhanceClick}
+                  className="custom-button"
+                >
+                  {isEnhancing ? (
+                    <>
+                      <BiLoaderAlt className="animate-spin h-3 w-3 mr-1" />
+                      <span>Enhancing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <RiMagicLine className="h-3 w-3 mr-1" />
+                      <span>Enhance Prompt</span>
+                    </>
+                  )}
+                </button>
+              </Tooltip>
+
+              <button
+                type="button"
+                onClick={handleClear}
+                className="custom-button"
+                style={{ display: userPrompt ? "flex" : "none" }}
+              >
+                <MdClear className="h-3 w-3 mr-0.5" />
+                <span>Clear</span>
+              </button>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Tooltip text="Dictation" position="top">
+                <button
+                  type="button"
+                  onClick={handleListenClick}
+                  className={`p-2 rounded-full ${
+                    isListening
+                      ? "text-red-500 bg-red-100"
+                      : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+                  } transition-colors`}
+                  title={isListening ? "Stop Listening" : "Start Listening"}
+                >
+                  {isListening ? (
+                    <FaStopCircle className="w-3.5 h-3.5" />
+                  ) : (
+                    <FaMicrophone className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </Tooltip>
+
+              <Tooltip text="Web Search" position="top">
+                <button
+                  type="button"
+                  onClick={handleWebSearchClick}
+                  className={`p-2 rounded-full ${
+                    isSearchingWeb
+                      ? "text-blue-500 bg-blue-100 cursor-wait"
+                      : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+                  } transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
+                  title={
+                    isSearchingWeb ? "Searching Web..." : "Perform Web Search"
+                  }
+                  disabled={isSearchingWeb || isLoading || !userPrompt}
+                >
+                  {isSearchingWeb ? (
+                    <BiLoaderAlt className="animate-spin h-3.5 w-3.5" />
+                  ) : (
+                    <BsGlobe className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </Tooltip>
+
+              <Tooltip text="Submit" position="top">
+                <button
+                  type="submit"
+                  disabled={isLoading || !userPrompt}
+                  className="p-2 bg-teal-600 text-white hover:bg-teal-700 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <BiLoaderAlt className="animate-spin h-3 w-3" />
+                  ) : (
+                    <BsChevronRight className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </Tooltip>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <div className="space-y-2 text-sm">
+        <div className="bg-gray-100 p-4 rounded-2xl flex justify-between items-center">
+          <div>
+            <h3 className="text-slate-800">Introducing our Windows App</h3>
+            <p className="text-xs text-slate-600">Coming Soon ..</p>
+          </div>
+          <div className="text-blue-500">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="currentColor"
             >
-              {isListening ? (
-                <FaStopCircle className="w-3 h-3" />
-              ) : (
-                <FaMicrophone className="w-3 h-3" />
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={handleWebSearchClick} // Add onClick handler
-              className={`p-2 rounded-md ${
-                isSearchingWeb
-                  ? "text-blue-500 bg-blue-100 dark:bg-blue-900 dark:text-blue-300 cursor-wait"
-                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-              } transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
-              title={isSearchingWeb ? "Searching Web..." : "Perform Web Search"}
-              disabled={isSearchingWeb || isLoading || !userPrompt} // Disable if searching, loading main response, or no prompt
-            >
-              {isSearchingWeb ? (
-                <BiLoaderAlt className="animate-spin h-3 w-3" /> // Show loader when searching
-              ) : (
-                <BsGlobe className="w-3 h-3" />
-              )}
-            </button>
-            <button
-              type="button"
-              className="p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-              title="Attach Link (Not implemented)"
-            >
-              <BsLink45Deg className="w-3 h-3" />
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading || !userPrompt}
-              className="p-2 bg-teal-100 text-teal-800 hover:bg-teal-200 rounded-full text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <BiLoaderAlt className="animate-spin h-3 w-3" />
-              ) : (
-                <BsChevronRight className="w-3 h-3" />
-              )}
-            </button>
+              <path d="M0 3.449L9.75 2.1v9.45H0m10.949-9.602L24 1.1v10.45H10.949M0 12.6h9.75v9.45L0 20.699M10.949 12.6H24v10.45L10.949 21.9" />
+            </svg>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+          <div className="custom-card-header">
+            <div className="flex items-center justify-between space-x-14">
+              <p className="font-light text-sm flex items-center">
+                <LuMoonStar className="mr-1" />
+                {weather.temp}
+              </p>
+              <p className="text-xs text-slate-600">{weather.location}</p>
+            </div>
+            <div className="text-xs flex justify-between items-center">
+              <div>Clear</div>
+              <div className="text-slate-500 font-light">
+                H: {weather.h} L: {weather.l}
+              </div>
+            </div>
+          </div>
+
+          <div className="custom-card-header flex">
+            <div className="flex items-center space-x-2">
+              <Image
+                src="https://pplx-res.cloudinary.com/image/upload/t_thumbnail/v1743801176/url_uploads/elon-musk-doge-social-security-number_igzejk.jpg"
+                width={50}
+                height={50}
+                alt="User Profile"
+                className="rounded-xl"
+              />
+              <p className="text-xs text-slate-600">
+                Musk's Social Secy Fraud Disclosure
+              </p>
+            </div>
+          </div>
+
+          <div className="custom-card-header flex">
+            <div className="flex items-center space-x-2">
+              <Image
+                src="https://pplx-res.cloudinary.com/image/upload/t_thumbnail/v1743869873/getty_uploads/2207713833_fgy8u6.jpg"
+                width={50}
+                height={50}
+                alt="User Profile"
+                className="rounded-xl"
+              />
+              <p className="text-xs text-slate-600">
+                Musk Calls For Zero Tariff Trade Zone With EU Union <br />
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    </form>
+    </div>
   );
 }
