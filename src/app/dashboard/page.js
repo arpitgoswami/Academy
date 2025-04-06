@@ -16,6 +16,7 @@ export default function Dashboard() {
   const [userPrompt, setUserPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [isSearchingWeb, setIsSearchingWeb] = useState(false); // Add state for web search
   const [showContent, setShowContent] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -64,6 +65,23 @@ export default function Dashboard() {
     }
   };
 
+  // Add web search handler
+  const handleWebSearchClick = async () => {
+    if (!userPrompt || isSearchingWeb || isLoading) return;
+    setIsSearchingWeb(true);
+    setIsLoading(true); // Also set general loading state
+    setAiResponse("Performing web search...");
+    setSources([]); // Clear previous sources
+
+    // Simulate web search API call
+    setTimeout(() => {
+      setAiResponse("Simulated web search results for: " + userPrompt);
+      setSources(["simulated-source1.com", "simulated-source2.net"]); // Update sources
+      setIsSearchingWeb(false);
+      setIsLoading(false); // Clear general loading state
+    }, 2000);
+  };
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -78,34 +96,32 @@ export default function Dashboard() {
           onClick={toggleSidebar}
         ></div>
       )}
+      <Header onMenuClick={toggleSidebar} />
       <div className="flex-1 flex flex-col md:ml-64">
-        <Header onMenuClick={toggleSidebar} />
-        <div className="flex-1 flex flex-col overflow-y-auto">
-          {" "}
-          <main className="flex-1 container mx-auto px-4 sm:px-6 py-8 md:py-10 max-w-full">
-            <div
-              className={`transition-opacity h-full duration-500 ease-out ${
-                showContent ? "opacity-100" : "opacity-0"
-              }`}
-            >
-              <InputForm
-                userPrompt={userPrompt}
-                setUserPrompt={setUserPrompt}
-                handleSubmit={handleSubmit}
-                isLoading={isLoading}
-                isEnhancing={isEnhancing}
-                setIsEnhancing={setIsEnhancing}
-                user={user}
-                setAiResponse={setAiResponse}
-                disabled={isLoading ? "hidden" : "block"}
-                setSources={setSources}
-              />
+        <main className="md:h-full container mx-auto px-4 sm:px-6 py-8 md:py-10 max-w-full">
+          <div
+            className={`flex justify-center items-center transition-opacity h-full duration-500 ease-out ${
+              showContent ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <InputForm
+              userPrompt={userPrompt}
+              setUserPrompt={setUserPrompt}
+              handleSubmit={handleSubmit}
+              handleWebSearchClick={handleWebSearchClick} // Pass the handler down
+              isLoading={isLoading}
+              isEnhancing={isEnhancing}
+              setIsEnhancing={setIsEnhancing}
+              user={user}
+              setAiResponse={setAiResponse}
+              disabled={isLoading ? "hidden" : "block"}
+              setSources={setSources}
+            />
 
-              <ResponseDisplay aiResponse={aiResponse} sources={sources} />
-            </div>
-          </main>
-          <DashboardFooter />
-        </div>
+            <ResponseDisplay aiResponse={aiResponse} sources={sources} />
+          </div>
+        </main>
+        <DashboardFooter />
       </div>
     </div>
   );

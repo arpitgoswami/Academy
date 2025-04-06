@@ -16,14 +16,17 @@ import Image from "next/image";
 
 import Tooltip from "./Tooltip";
 
-export default function ChatInterface() {
-  const [userPrompt, setUserPrompt] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+export default function InputForm({
+  userPrompt,
+  setUserPrompt,
+  handleSubmit, // Use parent's handleSubmit
+  handleWebSearchClick, // Use parent's handleWebSearchClick
+  isLoading, // Use parent's isLoading state
+  setAiResponse, // Use parent's setter
+  setSources, // Use parent's setter
+}) {
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [isSearchingWeb, setIsSearchingWeb] = useState(false);
-  const [aiResponse, setAiResponse] = useState("");
-  const [sources, setSources] = useState([]);
   const [weather, setWeather] = useState({
     temp: "27°C",
     location: "Chandigarh",
@@ -78,21 +81,7 @@ export default function ChatInterface() {
     };
   }, [userPrompt]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!userPrompt.trim() || isLoading) return;
-
-    setIsLoading(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      setAiResponse(
-        "This is a simulated response based on your query: " + userPrompt
-      );
-      setIsLoading(false);
-    }, 1500);
-  };
-
+  // handleSubmit is now passed as a prop
   const handleListenClick = () => {
     if (!recognitionRef.current) return;
 
@@ -122,19 +111,7 @@ export default function ChatInterface() {
     }
   };
 
-  const handleWebSearchClick = async () => {
-    if (!userPrompt || isSearchingWeb || isLoading) return;
-    setIsSearchingWeb(true);
-    setAiResponse("Performing web search...");
-
-    // Simulate web search
-    setTimeout(() => {
-      setAiResponse("Web search results for: " + userPrompt);
-      setSources(["source1.com", "source2.com"]);
-      setIsSearchingWeb(false);
-    }, 2000);
-  };
-
+  // handleWebSearchClick is now passed as a prop
   const handleClear = () => {
     setUserPrompt("");
     if (textareaRef.current) {
@@ -172,7 +149,7 @@ export default function ChatInterface() {
               placeholder="Ask anything..."
               onKeyDown={(e) => {
                 if (e.key === "Enter" && e.shiftKey) {
-                  e.preventDefault();
+                  // Allow Shift+Enter for new lines, handle submit on Enter alone if desired, or keep parent's logic
                   handleSubmit(e);
                 }
               }}
@@ -187,7 +164,9 @@ export default function ChatInterface() {
 
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center space-x-2">
-              <div className="custom-model-name">Gemini 2.0 Flash</div>
+              <div className="custom-model-name hidden md:block">
+                Gemini 2.0 Flash
+              </div>
               <Tooltip text="Enhance your prompt" position="top">
                 <button
                   type="button"
@@ -244,17 +223,15 @@ export default function ChatInterface() {
                 <button
                   type="button"
                   onClick={handleWebSearchClick}
-                  className={`p-2 rounded-full ${
-                    isSearchingWeb
-                      ? "text-blue-500 bg-blue-100 cursor-wait"
-                      : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
-                  } transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
+                  // Use parent's isLoading state for disabling and styling
+                  className={`p-2 rounded-full ${"text-slate-500 hover:text-slate-700 hover:bg-slate-100"} transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
                   title={
-                    isSearchingWeb ? "Searching Web..." : "Perform Web Search"
+                    isLoading ? "Processing..." : "Perform Web Search" // Reflect general loading state
                   }
-                  disabled={isSearchingWeb || isLoading || !userPrompt}
+                  disabled={isLoading || !userPrompt} // Disable during any loading
                 >
-                  {isSearchingWeb ? (
+                  {/* Show loader based on parent's isLoading state if desired, or keep simple icon */}
+                  {isLoading && false ? ( // Example: Conditionally show loader if needed, currently false
                     <BiLoaderAlt className="animate-spin h-3.5 w-3.5" />
                   ) : (
                     <BsGlobe className="w-3.5 h-3.5" />
