@@ -52,15 +52,16 @@ export async function GET(req) {
           const html = await response.text();
           const $ = cheerio.load(html);
 
+          const title = $("title").text().trim(); // ✅ Extract title
           const bodyText = $("body")
             .text()
             .replace(/\s+/g, " ")
             .trim()
             .slice(0, 1000); // Limit text size
 
-          return { link: item.link, content: bodyText };
+          return { link: item.link, title, content: bodyText };
         } catch (error) {
-          return { link: item.link, error: error.message };
+          return { link: item.link, title: "", error: error.message };
         }
       })
     );
@@ -75,7 +76,10 @@ export async function GET(req) {
           question: query,
           answer:
             "Could not retrieve readable information from the web search.",
-          sources: items.map((item) => item.link),
+          sources: items.map((item) => ({
+            link: item.link,
+            title: item.title || "", // fallback to search item title
+          })),
         },
         { headers: { "Access-Control-Allow-Origin": "*" } }
       );
@@ -112,7 +116,10 @@ export async function GET(req) {
       {
         question: query,
         answer,
-        sources: validScrapes.map((item) => item.link),
+        sources: validScrapes.map((item) => ({
+          link: item.link,
+          title: item.title,
+        })),
       },
       {
         headers: {

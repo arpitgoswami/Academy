@@ -162,47 +162,55 @@ export default function ResponseDisplay({ aiResponse, sources }) {
         {aiResponse}
       </ReactMarkdown>
 
-      {/* Sources Section - Updated Styling */}
-      {sources && sources.length > 0 && (
-        <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
-          <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-3">
-            Sources
-          </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {sources.map((source, index) => {
-              const domain = new URL(source).hostname.replace(/^www\./, "");
+      <div className="mt-6 mb-4 text-slate-500 dark:text-slate-400 text-sm">
+        {sources.map((source, index) => {
+          const url = typeof source === "string" ? source : source?.link;
 
-              const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=16`;
+          if (!url) return null; // Skip if URL is invalid or missing
 
-              return (
-                <a
-                  key={index}
-                  href={source.url || source} // Handle both object and string sources for now
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block p-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors duration-150"
-                >
-                  <div className="flex items-center mb-1.5">
-                    <img
-                      src={faviconUrl}
-                      alt={`${domain} favicon`}
-                      className="w-4 h-4 mr-2 rounded-sm"
-                      onError={(e) => (e.target.style.display = "none")} // Hide if favicon fails
-                    />
-                    <span className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                      {domain}
-                    </span>
-                  </div>
-                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-snug">
-                    {source.title || domain}{" "}
-                    {/* Display title or fallback to domain */}
-                  </p>
-                </a>
-              );
-            })}
-          </div>
-        </div>
-      )}
+          let domain = "";
+          let faviconUrl = "";
+
+          try {
+            const parsedUrl = new URL(url);
+            domain = parsedUrl.hostname.replace(/^www\./, "");
+            faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=16`;
+          } catch (err) {
+            console.error("Invalid URL in source:", source);
+            return null;
+          }
+
+          return (
+            <div className="flex justify-between items-center" key={index}>
+              <a
+                key={index}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors duration-150"
+              >
+                <div className="flex items-center mb-1.5">
+                  <img
+                    src={faviconUrl}
+                    alt={`${domain} favicon`}
+                    className="w-4 h-4 mr-2 rounded-sm"
+                    onError={(e) => {
+                      if (e.target instanceof HTMLImageElement)
+                        e.target.style.display = "none";
+                    }}
+                  />
+                  <span className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                    {domain}
+                  </span>
+                </div>
+                <p className="text-sm text-slate-700 dark:text-slate-300 leading-snug">
+                  {typeof source === "object" ? source.title || domain : domain}
+                </p>
+              </a>
+            </div>
+          );
+        })}
+      </div>
 
       <div className="mt-6 flex justify-end">
         <button

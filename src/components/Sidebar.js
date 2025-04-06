@@ -6,6 +6,7 @@ import { BsGlobe } from "react-icons/bs";
 import { RiLightbulbLine } from "react-icons/ri";
 import { IoCloseOutline } from "react-icons/io5";
 import { FiLogOut } from "react-icons/fi";
+import Image from "next/image";
 
 // NavButton component for consistent button styling
 const NavButton = ({ icon, text }) => (
@@ -91,7 +92,13 @@ export default function Sidebar({ isOpen, onClose }) {
         <div className="flex items-center justify-between px-2">
           <div className="flex items-center space-x-3">
             <div className="w-9 h-9 bg-teal-600 rounded-full flex items-center justify-center text-white font-semibold ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-950 ring-teal-600">
-              {user?.displayName?.[0] || user?.email?.[0] || "A"}
+              <Image
+                src="https://lh3.googleusercontent.com/a/ACg8ocJpA8Svo0a7n73bbHyAKUmXPhM6gJclx0UDzVfHdafVXuU=s96-c"
+                width={100}
+                height={100}
+                alt="User Profile"
+                className="rounded-full"
+              />
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-medium truncate max-w-[120px]">
