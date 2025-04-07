@@ -97,6 +97,13 @@ export default function Dashboard() {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  // Function to reset the response and sources for a new thread
+  const handleNewThread = () => {
+    setAiResponse("");
+    setSources([]);
+    setUserPrompt(""); // Also clear the user prompt for a fresh start
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 flex flex-col md:flex-row">
       {""}
@@ -110,27 +117,40 @@ export default function Dashboard() {
       <Header onMenuClick={toggleSidebar} />
       <div className="flex-1 flex flex-col md:ml-64">
         <main className="md:h-full container mx-auto px-4 sm:px-6 py-8 md:py-10 max-w-full">
-          <div
-            className={`flex justify-center items-center transition-opacity h-full duration-500 ease-out ${
-              showContent ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            <InputForm
+          {/* Conditionally render InputForm based on aiResponse state */}
+          {/* Conditionally render InputForm: Show only when no response, thinking, or error */}
+          {(!aiResponse ||
+            aiResponse === "Thinking..." ||
+            aiResponse.startsWith("Error generating response") ||
+            aiResponse.startsWith("Error performing web search")) && (
+            <div
+              className={`flex justify-center items-center transition-opacity h-full duration-500 ease-out ${
+                showContent ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              <InputForm
+                userPrompt={userPrompt}
+                setUserPrompt={setUserPrompt}
+                handleSubmit={handleSubmit}
+                handleWebSearchClick={handleWebSearchClick} // Pass the handler down
+                isLoading={isLoading}
+                isEnhancing={isEnhancing}
+                setIsEnhancing={setIsEnhancing}
+                user={user}
+                setAiResponse={setAiResponse}
+                setSources={setSources}
+              />
+            </div>
+          )}
+          <div className="flex items-center justify-center">
+            <ResponseDisplay
+              aiResponse={aiResponse}
+              sources={sources}
               userPrompt={userPrompt}
-              setUserPrompt={setUserPrompt}
-              handleSubmit={handleSubmit}
-              handleWebSearchClick={handleWebSearchClick} // Pass the handler down
-              isLoading={isLoading}
-              isEnhancing={isEnhancing}
-              setIsEnhancing={setIsEnhancing}
-              user={user}
-              setAiResponse={setAiResponse}
-              disabled={isLoading ? "hidden" : "block"}
-              setSources={setSources}
+              onNewThread={handleNewThread} // Pass the handler down
             />
           </div>
         </main>
-        <ResponseDisplay aiResponse={aiResponse} sources={sources} />
         <DashboardFooter />
       </div>
     </div>

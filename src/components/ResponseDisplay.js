@@ -4,10 +4,17 @@ import ReactMarkdown from "react-markdown";
 import { useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { BiLoaderAlt } from "react-icons/bi";
-import { FiCopy, FiCheck, FiLink } from "react-icons/fi";
+import { BiLoaderAlt, BiCopy, BiCheck, BiLink } from "react-icons/bi";
+import { MdOutlineQuestionAnswer } from "react-icons/md";
 
-export default function ResponseDisplay({ aiResponse, sources }) {
+import Tooltip from "./Tooltip";
+
+export default function ResponseDisplay({
+  aiResponse,
+  sources,
+  userPrompt,
+  onNewThread, // Receive the handler prop
+}) {
   const [copiedBlockId, setCopiedBlockId] = useState(null);
   let codeBlockCounter = 0;
 
@@ -26,7 +33,7 @@ export default function ResponseDisplay({ aiResponse, sources }) {
   ) {
     if (aiResponse) {
       return (
-        <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-md p-8 mt-6 text-center text-slate-600 dark:text-slate-400 italic flex items-center justify-center min-h-32">
+        <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 mt-6 text-center text-slate-600 dark:text-slate-400 italic flex items-center justify-center min-h-32">
           {/* Show loader for both Thinking and Web Search states */}
           {aiResponse === "Thinking..." ||
           aiResponse === "Performing web search..." ? (
@@ -45,38 +52,54 @@ export default function ResponseDisplay({ aiResponse, sources }) {
   }
 
   return (
-    <div className="bg-white max-w-[100vw] md:max-w-[80vw] dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-lg overflow-hidden mt-6">
-      <div className="border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 px-8 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              AI Response
-            </span>
-          </div>
+    <div className="w-full md:max-w-3xl dark:bg-slate-900 dark:border-slate-800 overflow-hidden">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <span className="text-3xl font-medium text-slate-700 dark:text-slate-300">
+            {userPrompt}
+          </span>
+        </div>
+        <Tooltip text="Copy Full Response" position="left">
           <button
             onClick={() => handleCopy(aiResponse, "full-response")}
-            className="flex items-center gap-1.5 text-sm py-1.5 px-3 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors duration-200"
+            className="custom-button"
             aria-label={
               copiedBlockId === "full-response" ? "Copied" : "Copy response"
             }
           >
             {copiedBlockId === "full-response" ? (
               <>
-                <FiCheck className="h-4 w-4 text-green-500" />
+                <BiCheck className="h-3 w-3 mr-1" />
                 <span>Copied!</span>
               </>
             ) : (
               <>
-                <FiCopy className="h-4 w-4" />
+                <BiCopy className="h-3 w-3 mr-1" />
                 <span>Copy Response</span>
               </>
             )}
           </button>
+        </Tooltip>
+      </div>
+
+      <div className="mt-4">
+        <div className="flex justify-between space-x-2 text-sm border-b">
+          <p className="custom-tab">
+            <MdOutlineQuestionAnswer className="mr-1" />
+            Answer
+          </p>
+          <Tooltip text="New Chat" position="left">
+            <button
+              onClick={onNewThread} // Attach the handler here
+              className="text-xs hover:underline"
+            >
+              New Thread
+            </button>
+          </Tooltip>
         </div>
       </div>
 
-      <div className="p-8 text-slate-800 dark:text-slate-200 leading-relaxed">
+      <div className="text-slate-800 text-sm mt-4 dark:text-slate-200 leading-relaxed">
         <ReactMarkdown
           components={{
             code({ node, inline, className, children, ...props }) {
@@ -90,7 +113,7 @@ export default function ResponseDisplay({ aiResponse, sources }) {
                   const isCopied = copiedBlockId === blockId;
 
                   return (
-                    <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 my-6 shadow-sm">
+                    <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 my-4">
                       <div className="flex justify-between items-center px-4 py-2 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-900 text-xs text-slate-600 dark:text-slate-400">
                         <span className="font-mono font-medium">
                           {language}
@@ -106,12 +129,12 @@ export default function ResponseDisplay({ aiResponse, sources }) {
                         >
                           {isCopied ? (
                             <>
-                              <FiCheck className="h-3.5 w-3.5" />
+                              <BiCheck className="h-3.5 w-3.5" />
                               <span>Copied!</span>
                             </>
                           ) : (
                             <>
-                              <FiCopy className="h-3.5 w-3.5" />
+                              <BiCopy className="h-3.5 w-3.5" />
                               <span>Copy code</span>
                             </>
                           )}
@@ -211,9 +234,9 @@ export default function ResponseDisplay({ aiResponse, sources }) {
       </div>
 
       {sources && sources.length > 0 && (
-        <div className="bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700 px-8 py-6">
+        <div className="dark:bg-slate-800/50 mt-4 border-t border-slate-200 dark:border-slate-700 px-8 py-6">
           <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center">
-            <FiLink className="mr-2 h-4 w-4 text-teal-500" />
+            <BiLink className="mr-2 h-4 w-4 text-teal-500" />
             Sources
           </h3>
 
@@ -241,7 +264,7 @@ export default function ResponseDisplay({ aiResponse, sources }) {
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-3 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors duration-150 shadow-sm hover:shadow-md group"
+                  className="p-3 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors duration-150 group"
                 >
                   <div className="flex items-center mb-1.5">
                     <img
@@ -257,7 +280,7 @@ export default function ResponseDisplay({ aiResponse, sources }) {
                       {domain}
                     </span>
                   </div>
-                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-snug group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-150">
+                  <p className="text-xs text-slate-700 dark:text-slate-300 leading-snug group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-150">
                     {typeof source === "object"
                       ? source.title || domain
                       : domain}

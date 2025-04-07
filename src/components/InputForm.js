@@ -14,6 +14,8 @@ import { enhancePrompt } from "../services/promptEnhancement";
 import { LuMoonStar } from "react-icons/lu";
 import Image from "next/image";
 
+import axios from "axios";
+
 import Tooltip from "./Tooltip";
 
 export default function InputForm({
@@ -27,12 +29,24 @@ export default function InputForm({
 }) {
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [weather, setWeather] = useState({
-    temp: "27°C",
-    location: "Chandigarh",
-    h: "38°",
-    l: "20°",
-  });
+  const [weather, setWeather] = useState({});
+
+  useEffect(() => {
+    axios.get("/api/weather").then((response) => {
+      if (response.status === 200) {
+        const data = response.data;
+        setWeather({
+          temp: `${Math.round(data.temp)}°C`,
+          location: data.city,
+          h: `${Math.round(data.temp_max)}°`,
+          l: `${Math.round(data.temp_min)}°`,
+          description: data.description,
+        });
+      } else {
+        console.error("Failed to fetch weather data:", response.data.message);
+      }
+    });
+  }, []);
 
   const recognitionRef = useRef(null);
   const textareaRef = useRef(null);
@@ -134,14 +148,14 @@ export default function InputForm({
   ];
 
   return (
-    <div className="max-w-2xl mx-auto px-4">
-      <h1 className="text-3xl md:text-center mb-8 font-normal text-slate-800">
+    <div className="w-full md:max-w-2xl px-4">
+      <h1 className="text-3xl md:text-center mb-6 font-normal text-slate-800">
         What do you want to know?
       </h1>
 
-      <form onSubmit={handleSubmit} className="mb-10">
+      <form onSubmit={handleSubmit} className="mb-6">
         <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden">
-          <div className="p-4">
+          <div className="p-3">
             <textarea
               ref={textareaRef}
               value={userPrompt}
@@ -149,12 +163,11 @@ export default function InputForm({
               placeholder="Ask anything..."
               onKeyDown={(e) => {
                 if (e.key === "Enter" && e.shiftKey) {
-                  // Allow Shift+Enter for new lines, handle submit on Enter alone if desired, or keep parent's logic
                   handleSubmit(e);
                 }
               }}
-              className="w-full bg-transparent border-0 focus:outline-none focus:ring-0 text-sm resize-none"
-              style={{ minHeight: "44px" }}
+              className="w-full bg-transparent border-0 focus:outline-none focus:ring-0 text-sm resize-none px-2 py-1"
+              style={{ height: "28px", lineHeight: "1.2" }}
               onInput={(e) => {
                 e.target.style.height = "inherit";
                 e.target.style.height = `${e.target.scrollHeight}px`;
@@ -286,7 +299,7 @@ export default function InputForm({
               <p className="text-xs text-slate-600">{weather.location}</p>
             </div>
             <div className="text-xs flex justify-between items-center">
-              <div>Clear</div>
+              <div>{weather.description}</div>
               <div className="text-slate-500 font-light">
                 H: {weather.h} L: {weather.l}
               </div>

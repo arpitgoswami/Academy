@@ -14,4 +14,8 @@
   .custom-card-header {
     @apply bg-gray-100 w-full p-4 rounded-2xl space-y-4 hover:opacity-60 duration-200 cursor-pointer;
   }
+
+  .custom-tab {
+    @apply border-b-2 flex items-center border-b-teal-800 p-4 cursor-pointer hover:bg-slate-50;
+  }
 }
