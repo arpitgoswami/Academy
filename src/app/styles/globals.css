@@ -18,4 +18,8 @@
   .custom-tab {
     @apply border-b-2 flex items-center border-b-teal-800 p-4 cursor-pointer hover:bg-slate-50;
   }
+
+  .custom-keyboard {
+    @apply font-mono border rounded-[0.3rem] px-1 text-xs bg-white;
+  }
 }
