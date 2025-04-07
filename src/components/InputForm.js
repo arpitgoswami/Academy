@@ -30,6 +30,7 @@ export default function InputForm({
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [weather, setWeather] = useState({});
+  const [newsArticles, setNewsArticles] = useState([]); // State for news articles
 
   useEffect(() => {
     axios.get("/api/weather").then((response) => {
@@ -46,6 +47,21 @@ export default function InputForm({
         console.error("Failed to fetch weather data:", response.data.message);
       }
     });
+    // Fetch news articles
+    axios
+      .get("/api/response")
+      .then((response) => {
+        if (response.status === 200 && Array.isArray(response.data)) {
+          setNewsArticles(response.data);
+        } else {
+          console.error("Failed to fetch news articles:", response.data);
+          setNewsArticles([]); // Set empty array on failure
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching news articles:", error);
+        setNewsArticles([]); // Set empty array on error
+      });
   }, []);
 
   const recognitionRef = useRef(null);
@@ -134,18 +150,7 @@ export default function InputForm({
     }
   };
 
-  const newsItems = [
-    {
-      id: 1,
-      title: "Musk's Social Security Fraud Disclosure",
-      image: "https://via.placeholder.com/50",
-    },
-    {
-      id: 2,
-      title: "Musk Calls For Zero-Tariff Trade Zone With...",
-      image: "https://via.placeholder.com/50",
-    },
-  ];
+  // Removed static newsItems array
 
   return (
     <div className="w-full md:max-w-2xl px-4">
@@ -306,35 +311,43 @@ export default function InputForm({
             </div>
           </div>
 
-          <div className="custom-card-header flex">
-            <div className="flex items-center space-x-2">
-              <Image
-                src="https://pplx-res.cloudinary.com/image/upload/t_thumbnail/v1743801176/url_uploads/elon-musk-doge-social-security-number_igzejk.jpg"
-                width={50}
-                height={50}
-                alt="User Profile"
-                className="rounded-xl"
-              />
-              <p className="text-xs text-slate-600">
-                Musk's Social Secy Fraud Disclosure
-              </p>
-            </div>
-          </div>
-
-          <div className="custom-card-header flex">
-            <div className="flex items-center space-x-2">
-              <Image
-                src="https://pplx-res.cloudinary.com/image/upload/t_thumbnail/v1743869873/getty_uploads/2207713833_fgy8u6.jpg"
-                width={50}
-                height={50}
-                alt="User Profile"
-                className="rounded-xl"
-              />
-              <p className="text-xs text-slate-600">
-                Musk Calls For Zero Tariff Trade Zone With EU Union <br />
-              </p>
-            </div>
-          </div>
+          {/* Dynamically render news articles */}
+          {newsArticles.map((article, index) => (
+            <a
+              key={index}
+              href={article.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="custom-card-header flex hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-150"
+            >
+              <div className="flex items-center space-x-2 w-full">
+                {/* Image or Placeholder */}
+                <img
+                  src={article.urlToImage || ""} // Provide empty string as default src
+                  width="50"
+                  height="50"
+                  alt={article.title || "News article image"}
+                  className={`rounded-xl object-cover flex-shrink-0 w-[50px] h-[50px] ${
+                    article.urlToImage ? "" : "hidden"
+                  }`} // Hide if no image
+                  onError={(e) => {
+                    if (e.target instanceof HTMLImageElement) {
+                      e.target.style.display = "none";
+                    }
+                  }}
+                />
+                {!article.urlToImage && (
+                  <div className="w-[50px] h-[50px] bg-slate-200 dark:bg-slate-700 rounded-xl flex items-center justify-center text-slate-400 flex-shrink-0">
+                    <BsLink45Deg size={20} />
+                  </div>
+                )}
+                {/* Text content */}
+                <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-3">
+                  {article.title || "Untitled Article"}
+                </p>
+              </div>
+            </a>
+          ))}
         </div>
       </div>
     </div>
