@@ -107,7 +107,11 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 flex flex-col md:flex-row">
       {""}
-      <Sidebar isOpen={isSidebarOpen} onClose={toggleSidebar} />
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={toggleSidebar}
+        onNewThread={handleNewThread} // Pass handleNewThread
+      />
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black min-h-screen bg-opacity-50 z-20 md:hidden"

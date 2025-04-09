@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react"; // Import useEffect
+
 import { useAuth, signOutUser } from "../app/firebase";
 import { BiHome, BiSearch, BiLibrary } from "react-icons/bi";
 import { BsGlobe } from "react-icons/bs";
@@ -19,7 +21,8 @@ const NavButton = ({ icon, text }) => (
   </button>
 );
 
-export default function Sidebar({ isOpen, onClose }) {
+export default function Sidebar({ isOpen, onClose, onNewThread }) {
+  // Add onNewThread prop
   const user = useAuth();
 
   const baseClasses =
@@ -28,6 +31,24 @@ export default function Sidebar({ isOpen, onClose }) {
   const responsiveClasses = isOpen
     ? "translate-x-0"
     : "-translate-x-full md:translate-x-0";
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key.toLowerCase() === "n" && event.shiftKey) {
+        event.preventDefault(); // Prevent default browser action (new window)
+        if (onNewThread) {
+          onNewThread();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    // Cleanup listener on component unmount
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onNewThread]); // Re-run effect if onNewThread changes
 
   return (
     <div className={`${baseClasses} ${responsiveClasses}`}>
@@ -56,12 +77,16 @@ export default function Sidebar({ isOpen, onClose }) {
 
       {/* Sidebar Menu */}
       <div className="px-4 space-y-6 text-sm flex-1 overflow-y-auto">
-        <button className="flex space-x-2 justify-between items-center py-2 px-4 rounded-full bg-teal-50 dark:bg-teal-900/20 w-full group transition-colors border border-teal-100 hover:bg-teal-100 dark:hover:bg-teal-900/30">
+        <button
+          onClick={onNewThread} // Add onClick handler
+          className="flex space-x-2 justify-between items-center py-2 px-4 rounded-full bg-teal-50 dark:bg-teal-900/20 w-full group transition-colors border border-teal-100 hover:bg-teal-100 dark:hover:bg-teal-900/30"
+        >
           <span className="font-medium text-teal-700 dark:text-teal-300">
             New Thread
           </span>
           <div>
-            <span className="custom-keyboard">Ctrl</span>
+            <span className="custom-keyboard">Shift</span>{" "}
+            {/* Changed Ctrl to Shift */}
             <span className="custom-keyboard">N</span>
           </div>
         </button>
