@@ -110,7 +110,7 @@ export default function Dashboard() {
       <Sidebar isOpen={isSidebarOpen} onClose={toggleSidebar} />
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
+          className="fixed inset-0 bg-black min-h-screen bg-opacity-50 z-20 md:hidden"
           onClick={toggleSidebar}
         ></div>
       )}

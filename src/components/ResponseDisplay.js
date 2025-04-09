@@ -56,7 +56,9 @@ export default function ResponseDisplay({
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <span className="text-3xl font-medium text-slate-700 dark:text-slate-300">
-            {userPrompt}
+            {userPrompt.length > 15
+              ? `${userPrompt.slice(0, 15)}...`
+              : userPrompt}
           </span>
         </div>
         <Tooltip text="Copy Full Response" position="left">
@@ -234,7 +236,7 @@ export default function ResponseDisplay({
       </div>
 
       {sources && sources.length > 0 && (
-        <div className="dark:bg-slate-800/50 mt-4 border-t border-slate-200 dark:border-slate-700 px-8 py-6">
+        <div className="dark:bg-slate-800/50 mt-4 border-t border-slate-200 dark:border-slate-700 py-6">
           <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center">
             <BiLink className="mr-2 h-4 w-4 text-teal-500" />
             Sources

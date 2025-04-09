@@ -23,7 +23,7 @@ export default function Sidebar({ isOpen, onClose }) {
   const user = useAuth();
 
   const baseClasses =
-    "fixed top-0 bottom-0 z-30 w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex flex-col transition-all duration-300 ease-in-out";
+    "fixed top-0 min-h-screen bottom-0 z-30 w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex flex-col transition-all duration-300 ease-in-out";
 
   const responsiveClasses = isOpen
     ? "translate-x-0"
