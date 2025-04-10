@@ -10,7 +10,7 @@ export async function GET(request) {
     );
   }
 
-  const newsApiUrl = `https://newsapi.org/v2/everything?q=india&from=2025-03-07&sortBy=publishedAt&apiKey=${apiKey}`;
+  const newsApiUrl = `https://newsapi.org/v2/everything?q=india&sortBy=publishedAt&apiKey=${apiKey}`;
 
   try {
     const response = await fetch(newsApiUrl, {

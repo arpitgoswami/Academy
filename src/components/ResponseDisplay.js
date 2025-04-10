@@ -52,7 +52,7 @@ export default function ResponseDisplay({
   }
 
   return (
-    <div className="w-full md:max-w-3xl dark:bg-slate-900 dark:border-slate-800 overflow-hidden">
+    <div className="w-full md:max-w-3xl dark:bg-slate-900 dark:border-slate-800 overflow-hidden mb-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <span className="text-3xl font-medium text-slate-700 dark:text-slate-300">
@@ -91,10 +91,7 @@ export default function ResponseDisplay({
             Answer
           </p>
           <Tooltip text="New Chat" position="left">
-            <button
-              onClick={onNewThread} // Attach the handler here
-              className="text-xs hover:underline"
-            >
+            <button onClick={onNewThread} className="text-xs hover:underline">
               New Thread
             </button>
           </Tooltip>
