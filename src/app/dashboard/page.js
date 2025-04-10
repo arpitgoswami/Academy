@@ -47,16 +47,8 @@ export default function Dashboard() {
         throw new Error(`API request failed: ${response.statusText}`);
       }
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        setAiResponse((prev) => prev + chunk);
-      }
+      const data = await response.json();
+      setAiResponse(data.response);
     } catch (error) {
       console.error("Error fetching AI response:", error);
       setAiResponse("Error generating response.");
@@ -68,7 +60,7 @@ export default function Dashboard() {
   const handleWebSearchClick = async () => {
     if (!userPrompt || isSearchingWeb || isLoading) return; // Prevent search if busy or no prompt
     setIsSearchingWeb(true);
-    setAiResponse("Performing web search..."); // Update loading state with a string
+
     try {
       const response = await fetch(
         `/api/search?q=${encodeURIComponent(userPrompt)}`
@@ -151,7 +143,8 @@ export default function Dashboard() {
               aiResponse={aiResponse}
               sources={sources}
               userPrompt={userPrompt}
-              onNewThread={handleNewThread} // Pass the handler down
+              onNewThread={handleNewThread}
+              user={user} // Pass user object for storing prompts
             />
           </div>
         </main>
