@@ -154,12 +154,8 @@ export default function InputForm({
     setIsEnhancing(true);
     try {
       // Simulate enhancing prompt
-      setTimeout(() => {
-        setUserPrompt(
-          userPrompt + " (enhanced with more context and specificity)"
-        );
-        setIsEnhancing(false);
-      }, 1000);
+      const enhancedPrompt = await enhancePrompt(userPrompt, user);
+      setUserPrompt(enhancedPrompt);
     } catch (error) {
       console.error("Error enhancing prompt:", error);
       setIsEnhancing(false);
@@ -272,12 +268,9 @@ export default function InputForm({
                     handleWebSearchClick();
                     setLoading(true);
                   }}
-                  // Use parent's isLoading state for disabling and styling
                   className={`p-2 rounded-full ${"text-slate-500 hover:text-slate-700 hover:bg-slate-100"} transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
-                  title={
-                    loading ? "Processing..." : "Perform Web Search" // Reflect general loading state
-                  }
-                  disabled={loading || !userPrompt} // Disable during any loading
+                  title={loading ? "Processing..." : "Perform Web Search"}
+                  disabled={loading || !userPrompt}
                 >
                   {loading ? (
                     <BiLoaderAlt className="animate-spin h-3.5 w-3.5" />
