@@ -153,11 +153,11 @@ export default function InputForm({
     if (!userPrompt || isEnhancing) return;
     setIsEnhancing(true);
     try {
-      // Simulate enhancing prompt
-      const enhancedPrompt = await enhancePrompt(userPrompt, user);
+      const enhancedPrompt = await enhancePrompt(userPrompt);
       setUserPrompt(enhancedPrompt);
     } catch (error) {
       console.error("Error enhancing prompt:", error);
+    } finally {
       setIsEnhancing(false);
     }
   };
