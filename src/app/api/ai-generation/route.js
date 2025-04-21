@@ -17,35 +17,17 @@ export async function POST(request) {
     const genAI = new GoogleGenerativeAI(API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    const result = await model.generateContentStream(prompt);
-    const response = new TransformStream();
-    const writer = response.writable.getWriter();
-    const encoder = new TextEncoder();
+    const result = await model.generateContent(prompt);
+    const response = result.response.text();
 
-    let aggregatedResponseText = "";
-
-    // Stream the response
-    (async () => {
-      try {
-        for await (const chunk of result.stream) {
-          const chunkText = chunk.text();
-          aggregatedResponseText += chunkText;
-          await writer.write(encoder.encode(chunkText));
-        }
-
-        writer.close();
-      } catch (error) {
-        console.error("Error in stream processing:", error);
-        writer.abort(error);
+    return NextResponse.json(
+      { response },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-    })();
-
-    return new Response(response.readable, {
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-        "Transfer-Encoding": "chunked",
-      },
-    });
+    );
   } catch (error) {
     console.error("Error generating AI response:", error);
     return NextResponse.json(

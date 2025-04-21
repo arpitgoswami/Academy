@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react"; // Import useEffect
+import { useEffect, useState } from "react"; // Import useEffect and useState
+import { getUserPrompts } from "../services/getUserPrompts"; // Import getUserPrompts from the new file
 
 import { useAuth, signOutUser } from "../app/firebase";
 import { BiHome, BiSearch, BiLibrary } from "react-icons/bi";
@@ -21,9 +22,25 @@ const NavButton = ({ icon, text }) => (
   </button>
 );
 
-export default function Sidebar({ isOpen, onClose, onNewThread }) {
+export default function Sidebar({
+  isOpen,
+  onClose,
+  onNewThread,
+  onPromptClick,
+}) {
   // Add onNewThread prop
   const user = useAuth();
+  const [prompts, setPrompts] = useState([]);
+
+  useEffect(() => {
+    const fetchPrompts = async () => {
+      if (user) {
+        const userPrompts = await getUserPrompts(user);
+        setPrompts(userPrompts);
+      }
+    };
+    fetchPrompts();
+  }, [user]);
 
   const baseClasses =
     "fixed top-0 min-h-screen bottom-0 z-30 w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex flex-col transition-all duration-300 ease-in-out";
@@ -100,6 +117,27 @@ export default function Sidebar({ isOpen, onClose, onNewThread }) {
           />
           <NavButton icon={<BiLibrary className="w-5 h-5" />} text="Library" />
         </nav>
+
+        {/* User Prompts */}
+        <div className="mt-6">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+            Your Prompts
+          </h2>
+          <ul className="space-y-2">
+            {prompts.map((prompt) => (
+              <li
+                key={prompt.id}
+                onClick={() => {
+                  console.log("Prompt clicked:", prompt.prompt); // Debug log
+                  onPromptClick(prompt.prompt); // Notify parent of selected prompt
+                }}
+                className="p-3 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700"
+              >
+                {prompt.prompt}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       {/* User Section with improved styling */}

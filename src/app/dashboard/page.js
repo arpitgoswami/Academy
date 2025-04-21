@@ -14,6 +14,7 @@ export default function Dashboard() {
   const [aiResponse, setAiResponse] = useState("");
   const [sources, setSources] = useState([]);
   const [userPrompt, setUserPrompt] = useState("");
+  const [selectedPrompt, setSelectedPrompt] = useState(null); // State for selected prompt
   const [isLoading, setIsLoading] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isSearchingWeb, setIsSearchingWeb] = useState(false); // Add state for web search
@@ -47,16 +48,8 @@ export default function Dashboard() {
         throw new Error(`API request failed: ${response.statusText}`);
       }
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        setAiResponse((prev) => prev + chunk);
-      }
+      const data = await response.json();
+      setAiResponse(data.response);
     } catch (error) {
       console.error("Error fetching AI response:", error);
       setAiResponse("Error generating response.");
@@ -68,7 +61,7 @@ export default function Dashboard() {
   const handleWebSearchClick = async () => {
     if (!userPrompt || isSearchingWeb || isLoading) return; // Prevent search if busy or no prompt
     setIsSearchingWeb(true);
-    setAiResponse("Performing web search..."); // Update loading state with a string
+
     try {
       const response = await fetch(
         `/api/search?q=${encodeURIComponent(userPrompt)}`
@@ -111,6 +104,10 @@ export default function Dashboard() {
         isOpen={isSidebarOpen}
         onClose={toggleSidebar}
         onNewThread={handleNewThread} // Pass handleNewThread
+        onPromptClick={(prompt) => {
+          console.log("setSelectedPrompt called with:", prompt); // Debug log
+          setSelectedPrompt(prompt);
+        }} // Ensure only one attribute for prompt click
       />
       {isSidebarOpen && (
         <div
@@ -150,8 +147,9 @@ export default function Dashboard() {
             <ResponseDisplay
               aiResponse={aiResponse}
               sources={sources}
-              userPrompt={userPrompt}
-              onNewThread={handleNewThread} // Pass the handler down
+              userPrompt={selectedPrompt || userPrompt} // Use selected prompt if available
+              onNewThread={handleNewThread}
+              user={user} // Pass user object for storing prompts
             />
           </div>
         </main>

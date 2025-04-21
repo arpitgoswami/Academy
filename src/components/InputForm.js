@@ -33,6 +33,7 @@ export default function InputForm({
   const [weather, setWeather] = useState({});
   const [newsArticles, setNewsArticles] = useState([]); // State for news articles
   const [toasts, setToasts] = useState([]); // State for toasts
+  const [loading, setLoading] = useState(false);
 
   // Function to add a toast
   const addToast = (message, type = "error", duration = 5000) => {
@@ -152,15 +153,11 @@ export default function InputForm({
     if (!userPrompt || isEnhancing) return;
     setIsEnhancing(true);
     try {
-      // Simulate enhancing prompt
-      setTimeout(() => {
-        setUserPrompt(
-          userPrompt + " (enhanced with more context and specificity)"
-        );
-        setIsEnhancing(false);
-      }, 1000);
+      const enhancedPrompt = await enhancePrompt(userPrompt);
+      setUserPrompt(enhancedPrompt);
     } catch (error) {
       console.error("Error enhancing prompt:", error);
+    } finally {
       setIsEnhancing(false);
     }
   };
@@ -267,16 +264,15 @@ export default function InputForm({
               <Tooltip text="Web Search" position="top">
                 <button
                   type="button"
-                  onClick={handleWebSearchClick}
-                  // Use parent's isLoading state for disabling and styling
+                  onClick={() => {
+                    handleWebSearchClick();
+                    setLoading(true);
+                  }}
                   className={`p-2 rounded-full ${"text-slate-500 hover:text-slate-700 hover:bg-slate-100"} transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
-                  title={
-                    isLoading ? "Processing..." : "Perform Web Search" // Reflect general loading state
-                  }
-                  disabled={isLoading || !userPrompt} // Disable during any loading
+                  title={loading ? "Processing..." : "Perform Web Search"}
+                  disabled={loading || !userPrompt}
                 >
-                  {/* Show loader based on parent's isLoading state if desired, or keep simple icon */}
-                  {isLoading && false ? ( // Example: Conditionally show loader if needed, currently false
+                  {loading ? (
                     <BiLoaderAlt className="animate-spin h-3.5 w-3.5" />
                   ) : (
                     <BsGlobe className="w-3.5 h-3.5" />

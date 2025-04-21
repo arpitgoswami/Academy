@@ -1,20 +1,37 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { BiLoaderAlt, BiCopy, BiCheck, BiLink } from "react-icons/bi";
+import { atomDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { MdOutlineQuestionAnswer } from "react-icons/md";
+import { storePrompt } from "../services/promptStorage";
 
 import Tooltip from "./Tooltip";
+
+// Correcting the import path here
+import { atomDark as syntaxStyle } from "react-syntax-highlighter/dist/esm/styles/prism"; // Keep alias for clarity if needed
 
 export default function ResponseDisplay({
   aiResponse,
   sources,
   userPrompt,
-  onNewThread, // Receive the handler prop
+  onNewThread,
+  user,
 }) {
+  useEffect(() => {
+    // Store prompt when we have a valid response (not loading/error state)
+    if (
+      aiResponse &&
+      aiResponse !== "Thinking..." &&
+      aiResponse !== "Performing web search..." &&
+      !aiResponse.startsWith("Error generating response") &&
+      !aiResponse.startsWith("Error performing web search")
+    ) {
+      storePrompt(user, userPrompt, "generation", aiResponse);
+    }
+  }, [aiResponse, userPrompt, user]);
+
   const [copiedBlockId, setCopiedBlockId] = useState(null);
   let codeBlockCounter = 0;
 
@@ -35,8 +52,7 @@ export default function ResponseDisplay({
       return (
         <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 mt-6 text-center text-slate-600 dark:text-slate-400 italic flex items-center justify-center min-h-32">
           {/* Show loader for both Thinking and Web Search states */}
-          {aiResponse === "Thinking..." ||
-          aiResponse === "Performing web search..." ? (
+          {aiResponse === "Thinking..." ? (
             <span className="flex items-center justify-center">
               <BiLoaderAlt className="animate-spin mr-2 h-5 w-5 text-teal-500" />
               {/* Keep text as Thinking... or adjust if needed */}
@@ -140,7 +156,7 @@ export default function ResponseDisplay({
                         </button>
                       </div>
                       <SyntaxHighlighter
-                        style={atomDark}
+                        style={syntaxStyle} // Use the imported style alias
                         language={language}
                         PreTag="div"
                         customStyle={{
@@ -148,7 +164,7 @@ export default function ResponseDisplay({
                           padding: "1.25rem",
                           flexWrap: "wrap",
                           fontSize: "0.9rem",
-                          backgroundColor: "#1e293b",
+                          backgroundColor: "#1e293b", // Explicit background for consistency
                           borderRadius: "0",
                         }}
                       >
@@ -157,13 +173,17 @@ export default function ResponseDisplay({
                     </div>
                   );
                 } else {
+                  // Handle non-syntax-highlighted code blocks (e.g., ```text)
                   return (
-                    <code className="bg-slate-100 dark:bg-slate-800 p-1 rounded-md">
-                      {codeString}
-                    </code>
+                    <pre className="bg-slate-100 dark:bg-slate-800 p-4 rounded-md my-4 overflow-x-auto">
+                      <code className="text-sm text-slate-800 dark:text-slate-200">
+                        {codeString}
+                      </code>
+                    </pre>
                   );
                 }
               }
+              // Handle inline code
               return (
                 <code
                   className={`bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-xs text-red-600 dark:text-red-400 font-medium ${
@@ -254,7 +274,7 @@ export default function ResponseDisplay({
                 faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=16`;
               } catch (err) {
                 console.error("Invalid URL in source:", source);
-                return null;
+                return null; // Skip rendering if URL is invalid
               }
 
               return (
@@ -269,8 +289,9 @@ export default function ResponseDisplay({
                     <img
                       src={faviconUrl}
                       alt={`${domain} favicon`}
-                      className="w-4 h-4 mr-2 rounded-sm"
+                      className="w-4 h-4 mr-2 rounded-sm flex-shrink-0" // Added flex-shrink-0
                       onError={(e) => {
+                        // Hide img tag if favicon fails to load
                         if (e.target instanceof HTMLImageElement)
                           e.target.style.display = "none";
                       }}
@@ -279,9 +300,11 @@ export default function ResponseDisplay({
                       {domain}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-700 dark:text-slate-300 leading-snug group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-150">
+                  <p className="text-xs text-slate-700 dark:text-slate-300 leading-snug group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-150 line-clamp-2">
+                    {" "}
+                    {/* Added line-clamp */}
                     {typeof source === "object"
-                      ? source.title || domain
+                      ? source.title || domain // Use domain as fallback title
                       : domain}
                   </p>
                 </a>
