@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import ToastContainer from "./ToastContainer"; // Import ToastContainer
+import ToastContainer from "./ToastContainer";
 import { BiLoaderAlt } from "react-icons/bi";
 import { BsLink45Deg, BsGlobe, BsChevronRight } from "react-icons/bs";
 import { FaMicrophone, FaStopCircle } from "react-icons/fa";
@@ -11,11 +11,10 @@ import { MdClear } from "react-icons/md";
 import { FiExternalLink } from "react-icons/fi";
 import { HiTranslate } from "react-icons/hi";
 import { GrAttachment } from "react-icons/gr";
-import { enhancePrompt } from "../services/promptEnhancement";
+import { getCurrentLocationWeather } from "../services/weatherService";
+import { fetchNewsArticles } from "../services/newsService";
 import { LuMoonStar } from "react-icons/lu";
 import Image from "next/image";
-
-import axios from "axios";
 
 import Tooltip from "./Tooltip";
 
@@ -47,9 +46,9 @@ export default function InputForm({
   };
 
   useEffect(() => {
-    axios.get("/api/weather").then((response) => {
-      if (response.status === 200) {
-        const data = response.data;
+    const loadWeather = async () => {
+      try {
+        const data = await getCurrentLocationWeather();
         setWeather({
           temp: `${Math.round(data.temp)}°C`,
           location: data.city,
@@ -57,36 +56,29 @@ export default function InputForm({
           l: `${Math.round(data.temp_min)}°`,
           description: data.description,
         });
-      } else {
-        console.error("Failed to fetch weather data:", response.data.message);
+      } catch (error) {
+        console.error("Failed to fetch weather data:", error);
         addToast(
-          `Failed to fetch weather: ${response.data.message || "Unknown error"}`
+          `Failed to fetch weather: ${error.message || "Unknown error"}`
         );
       }
-    });
+    };
+
+    loadWeather();
     // Fetch news articles
-    axios
-      .get("/api/response")
-      .then((response) => {
-        if (response.status === 200 && Array.isArray(response.data)) {
-          setNewsArticles(response.data);
-        } else {
-          console.error("Failed to fetch news articles:", response.data);
-          addToast(
-            `Failed to fetch news articles: ${
-              response.data?.message || "Invalid data format"
-            }`
-          );
-          setNewsArticles([]); // Set empty array on failure
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching news articles:", error);
+    const loadNews = async () => {
+      try {
+        const articles = await fetchNewsArticles();
+        setNewsArticles(articles);
+      } catch (error) {
+        console.error("Error loading news articles:", error);
         addToast(
-          `Error fetching news articles: ${error.message || "Network error"}`
+          `Failed to fetch news articles: ${error.message || "Unknown error"}`
         );
-        setNewsArticles([]); // Set empty array on error
-      });
+        setNewsArticles([]);
+      }
+    };
+    loadNews();
   }, []);
 
   const recognitionRef = useRef(null);
@@ -152,11 +144,81 @@ export default function InputForm({
   const handleEnhanceClick = async () => {
     if (!userPrompt || isEnhancing) return;
     setIsEnhancing(true);
+
     try {
-      const enhancedPrompt = await enhancePrompt(userPrompt);
-      setUserPrompt(enhancedPrompt);
+      console.log("Sending enhancement request for prompt:", userPrompt);
+
+      // Make the API request
+      const response = await fetch("/api/prompt-enhancement", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          originalPrompt: userPrompt,
+          user: { id: "demo-user" },
+        }),
+      });
+
+      // Try to parse the JSON response
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        console.error("Failed to parse API response:", parseError);
+        throw new Error("Invalid response from server");
+      }
+
+      // Log the complete response for debugging
+      console.log("Enhancement API response:", {
+        status: response.status,
+        statusText: response.statusText,
+        data,
+      });
+
+      // Handle non-200 responses
+      if (!response.ok) {
+        throw new Error(data.error || `Server error: ${response.status}`);
+      }
+
+      // Validate the response format
+      if (!data.success || typeof data.enhancedPrompt !== "string") {
+        console.error("Invalid API response format:", data);
+        throw new Error("Invalid response format from server");
+      }
+
+      // Update the prompt and adjust textarea
+      setUserPrompt(data.enhancedPrompt);
+      if (textareaRef.current) {
+        setTimeout(() => {
+          textareaRef.current.style.height = "44px";
+          textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }, 100); // Increased delay for more reliable textarea resizing
+      }
     } catch (error) {
       console.error("Error enhancing prompt:", error);
+      const errorMessage = error.message || "Unknown error";
+      if (errorMessage.includes("API configuration")) {
+        addToast(
+          "Server is not properly configured. Please try again later.",
+          "error",
+          7000
+        );
+      } else if (errorMessage.includes("Invalid response")) {
+        addToast(
+          "Server returned an invalid response. Please try again.",
+          "error",
+          7000
+        );
+      } else if (errorMessage.includes("Failed to generate")) {
+        addToast(
+          "AI model failed to enhance the prompt. Please try with a different prompt.",
+          "error",
+          7000
+        );
+      } else {
+        addToast(`Failed to enhance prompt: ${errorMessage}`, "error", 7000);
+      }
     } finally {
       setIsEnhancing(false);
     }
@@ -174,37 +236,37 @@ export default function InputForm({
   // Removed static newsItems array
 
   return (
-    <div className="w-full md:max-w-2xl px-4 relative">
+    <div className="w-full md:max-w-2xl px-6 relative space-y-8">
       {" "}
       {/* Added relative positioning */}
       {/* Toast Container */}
       <ToastContainer toasts={toasts} removeToast={removeToast} />
-      <h1 className="text-3xl md:text-center mb-6 font-normal text-slate-800">
+      <h1 className="text-4xl md:text-center mb-8 font-semibold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
         What do you want to know?
       </h1>
       <form onSubmit={handleSubmit} className="mb-6">
-        <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
           <div className="p-3">
             <textarea
               ref={textareaRef}
               value={userPrompt}
-              onChange={(e) => setUserPrompt(e.target.value)}
+              onChange={(e) => {
+                setUserPrompt(e.target.value);
+                e.target.style.height = "44px";
+                e.target.style.height = `${e.target.scrollHeight}px`;
+              }}
               placeholder="Ask anything..."
               onKeyDown={(e) => {
                 if (e.key === "Enter" && e.shiftKey) {
                   handleSubmit(e);
                 }
               }}
-              className="w-full bg-transparent border-0 focus:outline-none focus:ring-0 text-sm resize-none px-2 py-1"
-              style={{ height: "28px", lineHeight: "1.2" }}
-              onInput={(e) => {
-                e.target.style.height = "inherit";
-                e.target.style.height = `${e.target.scrollHeight}px`;
-              }}
+              className="w-full bg-transparent border-0 focus:outline-none focus:ring-0 text-base resize-none px-3 py-2 min-h-[44px] placeholder-slate-400 transition-all duration-200"
+              style={{ lineHeight: "1.5" }}
             />
           </div>
 
-          <div className="flex items-center justify-between p-4">
+          <div className="flex items-center justify-between px-5 py-4 border-t border-slate-100">
             <div className="flex items-center md:space-x-2">
               <div className="custom-model-name hidden md:block">
                 Gemini 2.0 Flash
@@ -214,7 +276,7 @@ export default function InputForm({
                   type="button"
                   disabled={isEnhancing || !userPrompt}
                   onClick={handleEnhanceClick}
-                  className="custom-button"
+                  className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
                 >
                   {isEnhancing ? (
                     <>
@@ -233,7 +295,7 @@ export default function InputForm({
               <button
                 type="button"
                 onClick={handleClear}
-                className="custom-button"
+                className="ml-2 md:ml-0 inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
                 style={{ display: userPrompt ? "flex" : "none" }}
               >
                 <MdClear className="h-3 w-3 mr-0.5" />
@@ -298,12 +360,16 @@ export default function InputForm({
         </div>
       </form>
       <div className="space-y-2 text-sm">
-        <div className="bg-gray-100 p-4 rounded-2xl flex justify-between items-center">
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-2xl flex justify-between items-center border border-blue-100 shadow-sm">
           <div>
-            <h3 className="text-slate-800">Introducing our Windows App</h3>
-            <p className="text-xs text-slate-600">Coming Soon ..</p>
+            <h3 className="text-slate-800 font-medium">
+              Introducing our Windows App
+            </h3>
+            <p className="text-sm text-slate-600 mt-1">
+              Experience AI on your desktop - Coming Soon
+            </p>
           </div>
-          <div className="text-blue-500">
+          <div className="text-blue-600">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -316,19 +382,24 @@ export default function InputForm({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-          <div className="custom-card-header">
-            <div className="flex items-center justify-between space-x-14">
-              <p className="font-light text-sm flex items-center">
-                <LuMoonStar className="mr-1" />
-                {weather.temp}
-              </p>
-              <p className="text-xs text-slate-600">{weather.location}</p>
-            </div>
-            <div className="text-xs flex justify-between items-center">
-              <div>{weather.description}</div>
-              <div className="text-slate-500 font-light">
-                H: {weather.h} L: {weather.l}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+            <div className="flex flex-col space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-base font-medium flex items-center text-slate-700">
+                  <LuMoonStar className="mr-2 h-4 w-4 text-slate-500" />
+                  {weather.temp}
+                </p>
+                <p className="text-sm text-slate-600">{weather.location}</p>
+              </div>
+              <div className="flex justify-between items-center border-t pt-3 border-slate-100">
+                <div className="text-sm text-slate-600">
+                  {weather.description}
+                </div>
+                <div className="text-sm text-slate-600">
+                  H: <span className="font-medium">{weather.h}</span> L:{" "}
+                  <span className="font-medium">{weather.l}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -340,7 +411,7 @@ export default function InputForm({
               href={article.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="custom-card-header flex hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-150"
+              className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex hover:bg-slate-50 transition-colors duration-150"
             >
               <div className="flex items-center space-x-2 w-full">
                 {/* Image or Placeholder */}
@@ -364,7 +435,7 @@ export default function InputForm({
                   </div>
                 )}
                 {/* Text content */}
-                <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-3">
+                <p className="text-sm text-slate-700 line-clamp-2 leading-snug font-medium">
                   {article.title || "Untitled Article"}
                 </p>
               </div>

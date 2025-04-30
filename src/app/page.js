@@ -1,103 +1,87 @@
 import React from "react";
 import { MessageSquarePlus, ArrowUpRight } from "lucide-react";
+import DashboardFooter from "@/components/DashboardFooter";
+import Link from "next/link";
 
 export default function Home() {
   const headerItems = ["Privacy Policy"];
 
   return (
     <div
-      className="min-h-screen bg-center text-white flex flex-col" // Removed bg-cover
+      className="min-h-screen bg-center bg-cover text-white flex flex-col relative overflow-hidden"
       style={{
         backgroundImage: "url('/background.png')",
       }}
     >
-      <header className="container mx-auto px-6 py-6 sm:px-10 lg:px-20 z-10">
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50 z-0"></div>
+      <header className="container mx-auto px-6 py-6 sm:px-10 lg:px-20 z-10 relative">
         <div className="flex justify-between items-center">
-          <div className="text-2xl font-bold">Academy.</div>
+          <div className="text-2xl font-bold tracking-tight hover:scale-105 transition-transform cursor-pointer">
+            Academy.
+          </div>
 
           <nav className="flex items-center space-x-8">
             {headerItems.map((item, index) => (
-              <a
+              <Link
                 key={index}
-                href="#"
+                href="/privacy-policy"
                 className="hidden md:block text-gray-300 hover:text-white transition text-xs hover:underline"
               >
                 {item}
-              </a>
+              </Link>
             ))}
 
-            <a
-              href="#"
-              className="flex items-center bg-white text-gray-900 px-5 py-2 rounded-md text-xs font-medium hover:bg-gray-200 transition"
+            <Link
+              href="/pricing"
+              className="flex items-center bg-white text-gray-900 px-5 py-2.5 rounded-md text-xs font-medium hover:bg-gray-200 transition-all duration-300 shadow-lg hover:shadow-white/20 hover:-translate-y-0.5"
             >
               Contact Sales
-            </a>
+            </Link>
           </nav>
         </div>
       </header>
 
-      <main className="flex-grow flex flex-col justify-center items-center container mx-auto px-6 text-center sm:px-10 lg:px-20 z-0">
+      <main className="flex-grow flex flex-col justify-center items-center container mx-auto px-6 text-center sm:px-10 lg:px-20 relative z-10">
         <div className="max-w-4xl">
-          <div className="inline-flex items-center bg-gray-800 bg-opacity-50 rounded-full px-4 py-1.5 text-xs mb-4">
+          <div className="inline-flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-xs mb-6 hover:bg-white/20 transition-colors duration-300 cursor-pointer">
             <MessageSquarePlus className="w-3 mr-1" />
             Now with AI Meeting Chat
           </div>
 
-          <h1 className="text-4xl lg:text-5xl font-bold mb-4">
+          <h1 className="text-4xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-white/90 to-white bg-clip-text text-transparent animate-gradient">
             Meet your AI assistant for research
           </h1>
 
-          <p className="text-sm text-gray-300 mb-8 max-w-xl mx-auto">
+          <p className="text-base text-gray-300 mb-10 max-w-xl mx-auto leading-relaxed">
             Joins your meetings, takes notes, summarizes outcomes, and turns
             talk into tasks — automatically
           </p>
 
-          <div className="flex justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-4">
-            <a
-              href="#"
-              className="text-xs bg-white text-gray-900 px-8 py-3 rounded-md font-medium hover:bg-gray-200 transition sm:w-auto"
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
+            <Link
+              href="/login"
+              className="text-xs bg-white text-gray-900 px-8 py-3.5 rounded-md font-semibold hover:bg-gray-200 transition-all duration-300 shadow-lg hover:shadow-white/20 hover:-translate-y-0.5 sm:w-auto"
             >
               Login
-            </a>
-            <a
-              href="#"
-              className="bg-gray-800 text-xs bg-opacity-50 text-white px-8 py-2 rounded-md font-medium hover:bg-opacity-70 transition flex items-center justify-center sm:w-auto"
+            </Link>
+            <Link
+              href="/dashboard"
+              className="bg-black/30 backdrop-blur-sm border border-white/20 text-xs text-white px-8 py-3.5 rounded-md font-medium hover:bg-black/50 transition-all duration-300 flex items-center justify-center sm:w-auto hover:-translate-y-0.5"
             >
               <ArrowUpRight className="mr-1 w-4" />
               Get Started
-            </a>
+            </Link>
           </div>
 
-          <p className="text-xs text-gray-400 font-mono">
+          <p className="text-xs text-gray-400 font-mono mt-2">
             *No credit card needed. All data is secure.
           </p>
         </div>
       </main>
 
-      <footer className="container mx-auto px-6 py-10 sm:px-10 lg:px-20">
-        <div className="flex justify-center items-center space-x-8 sm:space-x-12 md:space-x-16 opacity-70 flex-wrap gap-y-4">
-          <img
-            src="./footer-icons/logoipsum-356.svg"
-            alt="Logo Ipsum 1"
-            className="h-4 md:h-6 grayscale"
-          />
-          <img
-            src="./footer-icons/logoipsum-360.svg"
-            alt="Infinity Logo"
-            className="h-4 md:h-6 grayscale"
-          />
-          <img
-            src="./footer-icons/logoipsum-364.svg"
-            alt="Logo Ipsum 2"
-            className="h-4 md:h-6 grayscale"
-          />
-          <img
-            src="./footer-icons/logoipsum-369.svg"
-            alt="Logo Ipsum 3"
-            className="h-4 md:h-6 grayscale"
-          />
-        </div>
-      </footer>
+      <div className="relative z-10">
+        <DashboardFooter />
+      </div>
     </div>
   );
 }

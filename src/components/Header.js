@@ -10,6 +10,7 @@ import {
   WiDust,
 } from "react-icons/wi";
 import { useState, useEffect } from "react";
+import { getCurrentLocationWeather } from "../services/weatherService";
 
 const weatherIcons = {
   Clear: WiDaySunny,
@@ -25,36 +26,18 @@ export default function Header({ onMenuClick }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchWeather = async (params = {}) => {
+    const loadWeather = async () => {
       try {
-        const queryString = new URLSearchParams(params).toString();
-        const response = await fetch(`/api/weather?${queryString}`);
-        const data = await response.json();
+        const data = await getCurrentLocationWeather();
         setWeather(data);
       } catch (error) {
-        console.error("Error fetching weather:", error);
+        console.error("Error loading weather:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    // Try to get user's location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          fetchWeather({
-            lat: position.coords.latitude,
-            lon: position.coords.longitude,
-          });
-        },
-        (error) => {
-          console.log("Geolocation error:", error);
-          fetchWeather(); // Fallback to default location (New Delhi)
-        }
-      );
-    } else {
-      fetchWeather(); // Fallback to default location (New Delhi)
-    }
+    loadWeather();
   }, []);
 
   const WeatherIcon = weather
@@ -62,15 +45,15 @@ export default function Header({ onMenuClick }) {
     : weatherIcons.default;
 
   return (
-    <header className="sticky top-0 z-10 flex md:hidden items-center justify-between px-4 h-14 bg-white/95 backdrop-blur-md dark:bg-slate-950/95 border-b border-slate-200 dark:border-slate-800/50 shadow-sm">
+    <header className="sticky top-0 z-10 flex md:hidden items-center justify-between px-4 h-20 bg-white/95 backdrop-blur-md dark:bg-slate-950/95 border-b border-slate-200 dark:border-slate-800/50 shadow-sm">
       {/* Left section - Logo and Brand */}
       <div className="flex items-center">
         <div className="flex items-center group cursor-pointer">
-          <div className="w-8 h-8 mr-2.5 transition-transform group-hover:scale-105">
+          <div className="w-10 h-10 mr-2.5 transition-transform group-hover:scale-105">
             <img src="/logo_no_text.svg" alt="Logo" className="w-full h-full" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
               Academy
             </h1>
           </div>

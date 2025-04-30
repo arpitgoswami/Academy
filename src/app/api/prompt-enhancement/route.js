@@ -5,8 +5,21 @@ const API_KEY = "AIzaSyDyO3RcVB1iXrGt16uIoZ0hDWiSbHbsXp4";
 
 export async function POST(request) {
   try {
-    const { originalPrompt, user } = await request.json();
+    // Parse request body
+    let originalPrompt, user;
+    try {
+      const body = await request.json();
+      originalPrompt = body.originalPrompt;
+      user = body.user;
+    } catch (parseError) {
+      console.error("Failed to parse request body:", parseError);
+      return NextResponse.json(
+        { error: "Invalid request format" },
+        { status: 400 }
+      );
+    }
 
+    // Validate required fields
     if (!originalPrompt || !user) {
       return NextResponse.json(
         { error: "Original prompt and user are required" },
@@ -14,80 +27,119 @@ export async function POST(request) {
       );
     }
 
+    // Validate API key
+    if (!API_KEY) {
+      console.error("Gemini API key is not configured");
+      return NextResponse.json(
+        { error: "API configuration error" },
+        { status: 500 }
+      );
+    }
+
+    // Initialize Gemini AI
     const genAI = new GoogleGenerativeAI(API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-    const universalEnhancementPrompt = `
-    Take the following user prompt and transform it into the most effective version possible by applying these enhancement strategies:
-    
-    1. **Domain Optimization**:
-       - Analyze whether this relates to: [coding/writing/design/data analysis/education/business/other]
-       - Apply relevant domain conventions automatically
-       - Convert questions to actionable tasks when possible
-    
-    2. **Precision Enhancement**:
-       - Identify and replace all vague terms with specific parameters
-       - Add 1-2 concrete examples that illustrate the desired output
-       - Clearly separate core requirements from optional enhancements
-    
-    3. **Context Enrichment**:
-       - Infer and specify: 
-         * Target audience expertise level
-         * Primary use case/scenario
-         * Technical or creative constraints
-       - Add relevant comparative references if helpful
-    
-    4. **Output Structuring**:
-       - Determine optimal organization: [step-by-step/bullet points/narrative/visual]
-       - Set appropriate detail depth: [overview/balanced/exhaustive]
-       - Apply suitable style: [technical/conversational/persuasive/creative]
-
-    5. **Clarity and Brevity**:
-       - Remove any redundant phrases or jargon
-       - Ensure the prompt is concise yet comprehensive
-    
-    6. **Code and Architecture**
-       - Don't include any instructions or guidelines for using the prompt
-       - Don't include any code blocks or examples of code
-       - Don't answer in the markdown language use human readable language
-
-    7. **Boundary Conditions**:
-       - Minimum length of the enhanced prompt should be equal to 100 characters
-       - Maximum length of the enhanced prompt should be equal to 2 or 3 times the original Prompt
-
-    For the original prompt: "${originalPrompt}"
-    
-    Generate ONLY the enhanced version that incorporates all these improvements, ready for immediate use by an AI system. The enhanced prompt should:
-    
-    - Be 2-3x more detailed than the original
-    - Contain clear success criteria
-    - Specify the ideal response format
-    - Include any necessary contextual boundaries
-    - Don't add any type of disclaimers or unnecessary information
-    - Don't include any explanations or justifications for the changes made
-    - Don't include any additional text or comments
-    - Don't include any code blocks or formatting
-    - Don't include any references to the original prompt or the enhancement process
-    - Don't include code snippets, media, images, links or URLs
-    - Don't include any personal information or sensitive data
-    - Don't include any disclaimers or warnings
-    - Don't include any references to the AI model or its capabilities
-    - Don't include any examples and explanations of the prompt
-    
-    Enhanced prompt (output nothing else):
-    `;
-
-    const result = await model.generateContent(universalEnhancementPrompt);
-    const enhancedPrompt = result.response.text();
-
-    return NextResponse.json({
-      enhancedPrompt,
-      success: true,
+    const model = genAI.getGenerativeModel({
+      model: "gemini-pro",
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 2048,
+      },
     });
+
+    const prompt = `Please enhance the following prompt to make it more detailed, specific, and effective. Keep the core intent but add clarity and necessary context. Return only the enhanced prompt without any additional text or formatting.
+
+Original: "${originalPrompt}"
+
+Requirements:
+- Make it 2-3x more detailed
+- Add specific parameters and success criteria
+- Clarify any ambiguous terms
+- Keep natural, human-readable language
+- Focus on the core request
+- No explanations or metadata
+- No markdown or formatting
+
+Enhanced prompt:`;
+
+    // Generate enhanced prompt
+    try {
+      const result = await model.generateContent({
+        parts: [{ text: prompt }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 2048,
+          topP: 0.8,
+          stopSequences: ["---"],
+        },
+      });
+
+      if (!result || !result.response) {
+        console.error("Empty response from Gemini API");
+        throw new Error("AI model returned empty response");
+      }
+
+      const enhancedPrompt = result.response.text().trim();
+      console.log("Generated response:", enhancedPrompt);
+
+      if (!enhancedPrompt || enhancedPrompt.length === 0) {
+        throw new Error("AI model returned empty prompt");
+      }
+
+      if (enhancedPrompt.length < originalPrompt.length) {
+        throw new Error("Enhanced prompt is shorter than original");
+      }
+
+      // Remove any markdown formatting or explanations
+      const cleanedPrompt = enhancedPrompt
+        .replace(/^(Enhanced prompt:|Original:|Requirements:).*$/gm, "")
+        .replace(/^[-*•].*$/gm, "")
+        .replace(/```.*?```/gs, "")
+        .trim();
+
+      if (!cleanedPrompt) {
+        throw new Error("Invalid response format from AI model");
+      }
+
+      if (cleanedPrompt.length < 50) {
+        throw new Error("Enhanced prompt is too short");
+      }
+
+      // Log success for debugging
+      console.log("Successfully enhanced prompt:", {
+        original: originalPrompt,
+        enhanced: cleanedPrompt,
+        originalLength: originalPrompt.length,
+        enhancedLength: cleanedPrompt.length,
+      });
+
+      return NextResponse.json({
+        enhancedPrompt: cleanedPrompt,
+        success: true,
+      });
+    } catch (aiError) {
+      console.error("AI generation error:", {
+        error: aiError,
+        prompt: originalPrompt,
+        errorType: aiError.name,
+        errorMessage: aiError.message,
+      });
+      return NextResponse.json(
+        {
+          error: aiError.message || "Failed to generate enhanced prompt",
+          details: aiError.toString(),
+        },
+        { status: 500 }
+      );
+    }
   } catch (error) {
-    console.error("Error enhancing prompt:", error);
+    console.error("Error in prompt enhancement route:", {
+      error,
+      errorType: error.name,
+      errorMessage: error.message,
+      stack: error.stack,
+    });
     return NextResponse.json(
-      { error: "Error enhancing prompt" },
+      { error: error.message || "Internal server error" },
       { status: 500 }
     );
   }
