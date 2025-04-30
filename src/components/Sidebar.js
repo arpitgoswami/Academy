@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react"; // Import useEffect and useState
-import { getUserPrompts } from "../services/getUserPrompts"; // Import getUserPrompts from the new file
-
+import { useEffect, useState } from "react";
+import { getUserPrompts } from "../services/getUserPrompts";
+import LogoutDialog from "./LogoutDialog";
 import { useAuth, signOutUser } from "../app/firebase";
-import { BiHome, BiSearch, BiLibrary } from "react-icons/bi";
+import { BiHome, BiLibrary } from "react-icons/bi";
 import { BsGlobe } from "react-icons/bs";
 import { RiLightbulbLine } from "react-icons/ri";
 import { IoCloseOutline } from "react-icons/io5";
@@ -12,12 +12,24 @@ import { FiLogOut } from "react-icons/fi";
 import Image from "next/image";
 
 // NavButton component for consistent button styling
-const NavButton = ({ icon, text }) => (
+const NavButton = ({ icon, text, isActive }) => (
   <button
-    className="flex items-center py-2 px-3 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 w-full text-slate-700 dark:text-slate-200 transition-colors"
+    className={`flex items-center py-2.5 px-4 rounded-lg w-full text-slate-600 dark:text-slate-400 transition-all duration-200 group ${
+      isActive
+        ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-medium"
+        : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
+    }`}
     aria-label={text}
   >
-    <div className="w-6 mr-1 flex-shrink-0">{icon}</div>
+    <div
+      className={`w-5 mr-3 flex-shrink-0 transition-colors ${
+        isActive
+          ? "text-teal-600 dark:text-teal-400"
+          : "text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300"
+      }`}
+    >
+      {icon}
+    </div>
     <span>{text}</span>
   </button>
 );
@@ -28,9 +40,9 @@ export default function Sidebar({
   onNewThread,
   onPromptClick,
 }) {
-  // Add onNewThread prop
   const user = useAuth();
   const [prompts, setPrompts] = useState([]);
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchPrompts = async () => {
@@ -78,15 +90,15 @@ export default function Sidebar({
         <IoCloseOutline className="w-6 h-6" />
       </button>
       {/* Logo */}
-      <div className="px-4 pt-4 flex items-center mb-8 hover:opacity-80 cursor-pointer">
-        <div className="w-9 h-9 mr-2">
-          <img src="/logo.svg" alt="Logo" className="w-full h-full" />
+      <div className="px-4 pt-6 flex items-center mb-8 group cursor-pointer">
+        <div className="w-10 h-10 mr-3 transition-transform group-hover:scale-105">
+          <img src="/logo_no_text.svg" alt="Logo" className="w-full h-full" />
         </div>
         <div>
-          <h1 className="font-semibold text-slate-900 dark:text-white">
+          <h1 className="font-bold text-lg text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
             Academy
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
             Research Platform
           </p>
         </div>
@@ -95,16 +107,20 @@ export default function Sidebar({
       {/* Sidebar Menu */}
       <div className="px-4 space-y-6 text-sm flex-1 overflow-y-auto">
         <button
-          onClick={onNewThread} // Add onClick handler
-          className="flex space-x-2 justify-between items-center py-2 px-4 rounded-full bg-teal-50 dark:bg-teal-900/20 w-full group transition-colors border border-teal-100 hover:bg-teal-100 dark:hover:bg-teal-900/30"
+          onClick={onNewThread}
+          className="flex justify-between items-center py-3 px-5 rounded-xl bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 w-full transition-all duration-200 shadow-sm hover:shadow group"
         >
-          <span className="font-medium text-teal-700 dark:text-teal-300">
+          <span className="font-semibold text-white flex items-center">
+            <span className="mr-2 text-teal-100">+</span>
             New Thread
           </span>
-          <div>
-            <span className="custom-keyboard">Shift</span>{" "}
-            {/* Changed Ctrl to Shift */}
-            <span className="custom-keyboard">N</span>
+          <div className="flex items-center space-x-1 text-xs text-teal-100">
+            <kbd className="px-2 py-0.5 rounded bg-teal-600/50 font-medium">
+              ⇧
+            </kbd>
+            <kbd className="px-2 py-0.5 rounded bg-teal-600/50 font-medium">
+              N
+            </kbd>
           </div>
         </button>
 
@@ -119,21 +135,25 @@ export default function Sidebar({
         </nav>
 
         {/* User Prompts */}
-        <div className="mt-6">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
-            Your Prompts
+        <div className="mt-8">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center">
+            <span>Your Prompts</span>
+            <span className="ml-2 text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+              {prompts.length}
+            </span>
           </h2>
-          <ul className="space-y-2">
+          <ul className="space-y-2.5">
             {prompts.map((prompt) => (
               <li
                 key={prompt.id}
                 onClick={() => {
-                  console.log("Prompt clicked:", prompt.prompt); // Debug log
-                  onPromptClick(prompt.prompt); // Notify parent of selected prompt
+                  onPromptClick(prompt.prompt);
                 }}
-                className="p-3 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700"
+                className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 cursor-pointer transition-all duration-200 hover:border-teal-500 dark:hover:border-teal-500 hover:shadow-sm group"
               >
-                {prompt.prompt}
+                <div className="line-clamp-2 text-sm group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                  {prompt.prompt}
+                </div>
               </li>
             ))}
           </ul>
@@ -141,10 +161,10 @@ export default function Sidebar({
       </div>
 
       {/* User Section with improved styling */}
-      <div className="mt-auto border-t dark:border-slate-800 pt-4">
-        <div className="px-4 pb-4 flex items-center justify-between px-2">
+      <div className="mt-auto border-t dark:border-slate-800/50 pt-4">
+        <div className="px-4 pb-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 bg-teal-600 rounded-full flex items-center justify-center text-white font-semibold ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-950 ring-teal-600">
+            <div className="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center text-white font-semibold ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-950 ring-teal-600/80 transition-transform hover:scale-105">
               <Image
                 src="https://lh3.googleusercontent.com/a/ACg8ocJpA8Svo0a7n73bbHyAKUmXPhM6gJclx0UDzVfHdafVXuU=s96-c"
                 width={100}
@@ -163,14 +183,19 @@ export default function Sidebar({
             </div>
           </div>
           <button
-            onClick={signOutUser}
-            className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+            onClick={() => setIsLogoutDialogOpen(true)}
+            className="p-2.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
             aria-label="Sign out"
           >
             <FiLogOut className="w-5 h-5" />
           </button>
         </div>
       </div>
+      <LogoutDialog
+        isOpen={isLogoutDialogOpen}
+        onClose={() => setIsLogoutDialogOpen(false)}
+        onLogout={signOutUser}
+      />
     </div>
   );
 }

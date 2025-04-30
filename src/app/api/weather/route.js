@@ -1,18 +1,25 @@
-// File: src/app/api/weather/route.js
-// API route handler for fetching weather data using Next.js App Router
-
 import { NextResponse } from "next/server";
 
 export async function GET(request) {
-  // Extract city from query parameters, default to New Delhi if not provided
   const { searchParams } = new URL(request.url);
-  const city = searchParams.get("city") || "New Delhi";
+  const lat = searchParams.get("lat");
+  const lon = searchParams.get("lon");
+  const city = searchParams.get("city");
 
-  // IMPORTANT: Store your API key in environment variables, not directly in the code.
-  // Example: process.env.OPENWEATHERMAP_API_KEY
   const apiKey =
-    process.env.OPENWEATHERMAP_API_KEY || "bd5e378503939ddaee76f12ad7a97608"; // Replace with your actual key or env variable
-  const apiUrl = `https://api.openweathermap.org/data/2.5/weather?units=metric&q=${city}&appid=${apiKey}`;
+    process.env.OPENWEATHERMAP_API_KEY || "bd5e378503939ddaee76f12ad7a97608";
+
+  let apiUrl;
+  if (lat && lon) {
+    // If coordinates are provided, use them
+    apiUrl = `https://api.openweathermap.org/data/2.5/weather?units=metric&lat=${lat}&lon=${lon}&appid=${apiKey}`;
+  } else if (city) {
+    // If city name is provided, use it
+    apiUrl = `https://api.openweathermap.org/data/2.5/weather?units=metric&q=${city}&appid=${apiKey}`;
+  } else {
+    // Default to New Delhi
+    apiUrl = `https://api.openweathermap.org/data/2.5/weather?units=metric&q=New Delhi&appid=${apiKey}`;
+  }
 
   try {
     const response = await fetch(apiUrl);
