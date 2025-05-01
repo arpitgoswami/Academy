@@ -15,6 +15,7 @@ import { getCurrentLocationWeather } from "../services/weatherService";
 import { fetchNewsArticles } from "../services/newsService";
 import { LuMoonStar } from "react-icons/lu";
 import Image from "next/image";
+import { enhancePrompt } from "@/services/promptEnhancement";
 
 import Tooltip from "./Tooltip";
 
@@ -26,6 +27,7 @@ export default function InputForm({
   isLoading, // Use parent's isLoading state
   setAiResponse, // Use parent's setter
   setSources, // Use parent's setter
+  user,
 }) {
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -144,81 +146,23 @@ export default function InputForm({
   const handleEnhanceClick = async () => {
     if (!userPrompt || isEnhancing) return;
     setIsEnhancing(true);
-
     try {
-      console.log("Sending enhancement request for prompt:", userPrompt);
-
-      // Make the API request
-      const response = await fetch("/api/prompt-enhancement", {
-        method: "POST",
+      const url = `http://localhost:3000/api/enhance?originalPrompt=${encodeURIComponent(
+        userPrompt
+      )}`;
+      const response = await fetch(url, {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          originalPrompt: userPrompt,
-          user: { id: "demo-user" },
-        }),
       });
 
-      // Try to parse the JSON response
-      let data;
-      try {
-        data = await response.json();
-      } catch (parseError) {
-        console.error("Failed to parse API response:", parseError);
-        throw new Error("Invalid response from server");
-      }
-
-      // Log the complete response for debugging
-      console.log("Enhancement API response:", {
-        status: response.status,
-        statusText: response.statusText,
-        data,
-      });
-
-      // Handle non-200 responses
-      if (!response.ok) {
-        throw new Error(data.error || `Server error: ${response.status}`);
-      }
-
-      // Validate the response format
-      if (!data.success || typeof data.enhancedPrompt !== "string") {
-        console.error("Invalid API response format:", data);
-        throw new Error("Invalid response format from server");
-      }
-
-      // Update the prompt and adjust textarea
+      const data = await response.json();
       setUserPrompt(data.enhancedPrompt);
-      if (textareaRef.current) {
-        setTimeout(() => {
-          textareaRef.current.style.height = "44px";
-          textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-        }, 100); // Increased delay for more reliable textarea resizing
-      }
+      textareaRef.current.style.height = "180px";
     } catch (error) {
-      console.error("Error enhancing prompt:", error);
-      const errorMessage = error.message || "Unknown error";
-      if (errorMessage.includes("API configuration")) {
-        addToast(
-          "Server is not properly configured. Please try again later.",
-          "error",
-          7000
-        );
-      } else if (errorMessage.includes("Invalid response")) {
-        addToast(
-          "Server returned an invalid response. Please try again.",
-          "error",
-          7000
-        );
-      } else if (errorMessage.includes("Failed to generate")) {
-        addToast(
-          "AI model failed to enhance the prompt. Please try with a different prompt.",
-          "error",
-          7000
-        );
-      } else {
-        addToast(`Failed to enhance prompt: ${errorMessage}`, "error", 7000);
-      }
+      console.error("Error fetching enhanced prompt:", error);
+      throw error;
     } finally {
       setIsEnhancing(false);
     }

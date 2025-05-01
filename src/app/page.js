@@ -1,6 +1,6 @@
 import React from "react";
 import { MessageSquarePlus, ArrowUpRight } from "lucide-react";
-import DashboardFooter from "@/components/DashboardFooter";
+import DashboardFooter from "@/components/Footer";
 import Link from "next/link";
 
 export default function Home() {

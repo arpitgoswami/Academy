@@ -10,7 +10,7 @@ import {
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBl1ClScZmSLxKFiybmwMF9Qq7KLdiVqvg",
@@ -45,20 +45,31 @@ export const signOutUser = async () => {
 
 export const useAuth = () => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      if (currentUser) {
-        router.push("/dashboard");
-      } else {
+
+      // Redirect on auth state change only for login page
+      // or when not authenticated on protected routes
+      const protectedRoutes = ["/home", "/discover", "/spaces", "/library"];
+      const isProtectedRoute = protectedRoutes.includes(pathname);
+      const isLoginPage = pathname === "/login";
+
+      if (currentUser && isLoginPage) {
+        router.push("/home");
+      } else if (!currentUser && isProtectedRoute) {
         router.push("/login");
       }
+
+      setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [router]);
+  }, [router, pathname]);
 
-  return user;
+  return { user, loading };
 };

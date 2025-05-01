@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getUserPrompts } from "../services/getUserPrompts";
 import LogoutDialog from "./LogoutDialog";
 import { useAuth, signOutUser } from "../app/firebase";
 import { BiHome, BiLibrary } from "react-icons/bi";
@@ -10,10 +9,13 @@ import { RiLightbulbLine } from "react-icons/ri";
 import { IoCloseOutline } from "react-icons/io5";
 import { FiLogOut } from "react-icons/fi";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 // NavButton component for consistent button styling
-const NavButton = ({ icon, text, isActive }) => (
-  <button
+const NavButton = ({ icon, text, href, isActive }) => (
+  <Link
+    href={href || "#"}
     className={`flex items-center py-2.5 px-4 rounded-lg w-full text-slate-600 dark:text-slate-400 transition-all duration-200 group ${
       isActive
         ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-medium"
@@ -31,28 +33,13 @@ const NavButton = ({ icon, text, isActive }) => (
       {icon}
     </div>
     <span>{text}</span>
-  </button>
+  </Link>
 );
 
-export default function Sidebar({
-  isOpen,
-  onClose,
-  onNewThread,
-  onPromptClick,
-}) {
+export default function Sidebar({ isOpen, onClose, onNewThread }) {
   const user = useAuth();
-  const [prompts, setPrompts] = useState([]);
+  const pathname = usePathname();
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
-
-  useEffect(() => {
-    const fetchPrompts = async () => {
-      if (user) {
-        const userPrompts = await getUserPrompts(user);
-        setPrompts(userPrompts);
-      }
-    };
-    fetchPrompts();
-  }, [user]);
 
   const baseClasses =
     "fixed top-0 min-h-screen bottom-0 z-30 w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex flex-col transition-all duration-300 ease-in-out";
@@ -125,39 +112,31 @@ export default function Sidebar({
         </button>
 
         <nav className="space-y-2" aria-label="Sidebar navigation">
-          <NavButton icon={<BiHome className="w-5 h-5" />} text="Home" />
-          <NavButton icon={<BsGlobe className="w-5 h-5" />} text="Discover" />
+          <NavButton
+            icon={<BiHome className="w-5 h-5" />}
+            text="Home"
+            href="/home"
+            isActive={pathname === "/home"}
+          />
+          <NavButton
+            icon={<BsGlobe className="w-5 h-5" />}
+            text="Discover"
+            href="/discover"
+            isActive={pathname === "/discover"}
+          />
           <NavButton
             icon={<RiLightbulbLine className="w-5 h-5" />}
             text="Spaces"
+            href="/spaces"
+            isActive={pathname === "/spaces"}
           />
-          <NavButton icon={<BiLibrary className="w-5 h-5" />} text="Library" />
+          <NavButton
+            icon={<BiLibrary className="w-5 h-5" />}
+            text="Library"
+            href="/library"
+            isActive={pathname === "/library"}
+          />
         </nav>
-
-        {/* User Prompts */}
-        <div className="mt-8">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center">
-            <span>Your Prompts</span>
-            <span className="ml-2 text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
-              {prompts.length}
-            </span>
-          </h2>
-          <ul className="space-y-2.5">
-            {prompts.map((prompt) => (
-              <li
-                key={prompt.id}
-                onClick={() => {
-                  onPromptClick(prompt.prompt);
-                }}
-                className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 cursor-pointer transition-all duration-200 hover:border-teal-500 dark:hover:border-teal-500 hover:shadow-sm group"
-              >
-                <div className="line-clamp-2 text-sm group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-                  {prompt.prompt}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
 
       {/* User Section with improved styling */}

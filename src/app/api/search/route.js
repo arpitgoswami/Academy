@@ -37,48 +37,61 @@ export async function GET(req) {
       throw new Error("No search results found.");
     }
 
-    const items = searchData.items.slice(0, 3); // Limit to top 3 results
+    const items = searchData.items.slice(0, 5); // Limit to 5 top results
 
-    const scrapedPages = await Promise.all(
+    const scrapedPages = await Promise.allSettled(
       items.map(async (item) => {
         try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
           const response = await fetch(item.link, {
             headers: {
               "User-Agent":
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0 Safari/537.36",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/91.0",
             },
+            signal: controller.signal,
           });
+
+          clearTimeout(timeout);
 
           const html = await response.text();
           const $ = cheerio.load(html);
 
-          const title = $("title").text().trim(); // ✅ Extract title
-          const bodyText = $("body")
+          const title = $("title").text().trim();
+          const metaDescription =
+            $('meta[name="description"]').attr("content") || "";
+          const pTags = $("p").slice(0, 3).text().replace(/\s+/g, " ").trim();
+          const hTags = $("h2, h3")
+            .slice(0, 3)
             .text()
             .replace(/\s+/g, " ")
-            .trim()
-            .slice(0, 1000); // Limit text size
+            .trim();
 
-          return { link: item.link, title, content: bodyText };
-        } catch (error) {
-          return { link: item.link, title: "", error: error.message };
+          const summary = [metaDescription, hTags, pTags]
+            .filter(Boolean)
+            .join(" ")
+            .slice(0, 1000); // limit total content
+
+          return { link: item.link, title, content: summary };
+        } catch (err) {
+          return { link: item.link, title: "", error: err.message };
         }
       })
     );
 
-    const validScrapes = scrapedPages.filter(
-      (result) => !result.error && result.content
-    );
+    const validScrapes = scrapedPages
+      .filter((r) => r.status === "fulfilled" && r.value.content)
+      .map((r) => r.value);
 
     if (validScrapes.length === 0) {
       return NextResponse.json(
         {
           question: query,
-          answer:
-            "Could not retrieve readable information from the web search.",
+          answer: "Couldn't extract reliable content from search results.",
           sources: items.map((item) => ({
             link: item.link,
-            title: item.title || "", // fallback to search item title
+            title: item.title,
           })),
         },
         { headers: { "Access-Control-Allow-Origin": "*" } }
@@ -86,13 +99,30 @@ export async function GET(req) {
     }
 
     const contextText = validScrapes
-      .map((res) => `=== Source: ${res.link} ===\n${res.content}`)
+      .map((res) => `Source: ${res.title}\n${res.content}`)
       .join("\n\n");
 
-    const geminiPrompt = `Using the information below from multiple sources, answer the following question concisely:\n\nQuestion: ${query}\n\nInformation:\n${contextText}`;
+    const geminiPrompt = `
+    You are a highly knowledgeable and reliable AI assistant.
+    
+    Your task is to answer the following question in a detailed, factually accurate, and well-structured way. Your answer should be between **200 and 1000 words** and written clearly and concisely. Use the **information extracted from real-time web pages** below to inform your answer. If some information is missing or unclear, supplement it with your own accurate and up-to-date knowledge, but clearly prioritize and reference the context wherever possible.
+    
+    ### Question:
+    ${query}
+    
+    ### Context from Web (multiple sources):
+    ${contextText}
+    
+    ### Instructions:
+    - Write a clear, logically structured answer with headings if appropriate.
+    - Be objective, do not speculate.
+    - Prioritize extracted data but fill in knowledge gaps with your own reliable data.
+    - Avoid repetition. Do not list URLs in the answer.
+    - Final answer must be helpful, professional, and exceed 200 words (but not more than 1000 words).
+    `;
 
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -104,22 +134,15 @@ export async function GET(req) {
 
     const geminiData = await geminiRes.json();
 
-    if (!geminiData.candidates?.length) {
-      throw new Error("Gemini did not return a response.");
-    }
-
     const answer =
-      geminiData.candidates[0]?.content?.parts?.[0]?.text ||
-      "No answer generated by Gemini.";
+      geminiData.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "Gemini could not generate an answer.";
 
     return NextResponse.json(
       {
         question: query,
         answer,
-        sources: validScrapes.map((item) => ({
-          link: item.link,
-          title: item.title,
-        })),
+        sources: validScrapes.map((s) => ({ link: s.link, title: s.title })),
       },
       {
         headers: {

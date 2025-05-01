@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "../../components/Sidebar";
 import InputForm from "../../components/InputForm";
 import ResponseDisplay from "../../components/ResponseDisplay";
-import DashboardFooter from "../../components/DashboardFooter";
+import DashboardFooter from "../../components/Footer";
 import Header from "../../components/Header";
 
 export default function Dashboard() {
