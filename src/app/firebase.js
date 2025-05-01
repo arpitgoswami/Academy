@@ -53,8 +53,6 @@ export const useAuth = () => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
 
-      // Redirect on auth state change only for login page
-      // or when not authenticated on protected routes
       const protectedRoutes = ["/home", "/discover", "/spaces", "/library"];
       const isProtectedRoute = protectedRoutes.includes(pathname);
       const isLoginPage = pathname === "/login";

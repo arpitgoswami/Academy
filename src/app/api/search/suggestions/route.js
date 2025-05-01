@@ -14,7 +14,6 @@ const generateSuggestions = (query) => {
     `${query} alternatives`,
   ];
 
-  // Filter out suggestions that are too similar to the query itself
   return baseQuestions.filter(
     (suggestion) =>
       suggestion.toLowerCase() !== query.toLowerCase() &&
@@ -35,7 +34,7 @@ export async function GET(req) {
     const suggestions = generateSuggestions(query.trim());
 
     return NextResponse.json(
-      { suggestions: suggestions.slice(0, 6) }, // Limit to 6 suggestions
+      { suggestions: suggestions.slice(0, 6) },
       {
         headers: {
           "Access-Control-Allow-Origin": "*",

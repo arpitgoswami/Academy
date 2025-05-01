@@ -37,13 +37,13 @@ export async function GET(req) {
       throw new Error("No search results found.");
     }
 
-    const items = searchData.items.slice(0, 5); // Limit to 5 top results
+    const items = searchData.items.slice(0, 5);
 
     const scrapedPages = await Promise.allSettled(
       items.map(async (item) => {
         try {
           const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), 5000); // 5s timeout
+          const timeout = setTimeout(() => controller.abort(), 5000);
 
           const response = await fetch(item.link, {
             headers: {
@@ -71,7 +71,7 @@ export async function GET(req) {
           const summary = [metaDescription, hTags, pTags]
             .filter(Boolean)
             .join(" ")
-            .slice(0, 1000); // limit total content
+            .slice(0, 1000);
 
           return { link: item.link, title, content: summary };
         } catch (err) {

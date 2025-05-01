@@ -12,7 +12,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// NavButton component for consistent button styling
 const NavButton = ({ icon, text, href, isActive }) => (
   <Link
     href={href || "#"}
@@ -37,7 +36,7 @@ const NavButton = ({ icon, text, href, isActive }) => (
 );
 
 export default function Sidebar({ isOpen, onClose, onNewThread }) {
-  const user = useAuth();
+  const { user } = useAuth();
   const pathname = usePathname();
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
@@ -68,7 +67,6 @@ export default function Sidebar({ isOpen, onClose, onNewThread }) {
 
   return (
     <div className={`${baseClasses} ${responsiveClasses}`}>
-      {/* Close button for mobile */}
       <button
         onClick={onClose}
         className="absolute top-2 right-2 p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 md:hidden" // Only show on mobile
@@ -76,7 +74,6 @@ export default function Sidebar({ isOpen, onClose, onNewThread }) {
       >
         <IoCloseOutline className="w-6 h-6" />
       </button>
-      {/* Logo */}
       <div className="px-4 pt-6 flex items-center mb-8 group cursor-pointer">
         <div className="w-10 h-10 mr-3 transition-transform group-hover:scale-105">
           <img src="/logo_no_text.svg" alt="Logo" className="w-full h-full" />
@@ -91,7 +88,6 @@ export default function Sidebar({ isOpen, onClose, onNewThread }) {
         </div>
       </div>
 
-      {/* Sidebar Menu */}
       <div className="px-4 space-y-6 text-sm flex-1 overflow-y-auto">
         <button
           onClick={onNewThread}
@@ -139,7 +135,6 @@ export default function Sidebar({ isOpen, onClose, onNewThread }) {
         </nav>
       </div>
 
-      {/* User Section with improved styling */}
       <div className="mt-auto border-t dark:border-slate-800/50 pt-4">
         <div className="px-4 pb-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -153,7 +148,7 @@ export default function Sidebar({ isOpen, onClose, onNewThread }) {
               />
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-medium truncate max-w-[120px]">
+              <span className="text-sm font-medium truncate max-w-[120px] text-slate-900 dark:text-white">
                 {user?.displayName || user?.email?.split("@")[0] || "User"}
               </span>
               <span className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[120px]">

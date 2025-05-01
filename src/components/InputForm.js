@@ -34,7 +34,6 @@ export default function InputForm({
   const [weather, setWeather] = useState({});
   const [newsArticles, setNewsArticles] = useState([]); // State for news articles
   const [toasts, setToasts] = useState([]); // State for toasts
-  const [loading, setLoading] = useState(false);
 
   // Function to add a toast
   const addToast = (message, type = "error", duration = 5000) => {
@@ -67,7 +66,6 @@ export default function InputForm({
     };
 
     loadWeather();
-    // Fetch news articles
     const loadNews = async () => {
       try {
         const articles = await fetchNewsArticles();
@@ -130,7 +128,6 @@ export default function InputForm({
     };
   }, [userPrompt]);
 
-  // handleSubmit is now passed as a prop
   const handleListenClick = () => {
     if (!recognitionRef.current) return;
 
@@ -168,7 +165,6 @@ export default function InputForm({
     }
   };
 
-  // handleWebSearchClick is now passed as a prop
   const handleClear = () => {
     setUserPrompt("");
     if (textareaRef.current) {
@@ -177,13 +173,9 @@ export default function InputForm({
     }
   };
 
-  // Removed static newsItems array
-
   return (
     <div className="w-full md:max-w-2xl px-6 relative space-y-8">
       {" "}
-      {/* Added relative positioning */}
-      {/* Toast Container */}
       <ToastContainer toasts={toasts} removeToast={removeToast} />
       <h1 className="text-4xl md:text-center mb-8 font-semibold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
         What do you want to know?
@@ -270,19 +262,12 @@ export default function InputForm({
               <Tooltip text="Web Search" position="top">
                 <button
                   type="button"
-                  onClick={() => {
-                    handleWebSearchClick();
-                    setLoading(true);
-                  }}
-                  className={`p-2 rounded-full ${"text-slate-500 hover:text-slate-700 hover:bg-slate-100"} transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
-                  title={loading ? "Processing..." : "Perform Web Search"}
-                  disabled={loading || !userPrompt}
+                  onClick={handleWebSearchClick}
+                  className="p-2 rounded-full text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Perform Web Search"
+                  disabled={!userPrompt}
                 >
-                  {loading ? (
-                    <BiLoaderAlt className="animate-spin h-3.5 w-3.5" />
-                  ) : (
-                    <BsGlobe className="w-3.5 h-3.5" />
-                  )}
+                  <BsGlobe className="w-3.5 h-3.5" />
                 </button>
               </Tooltip>
 
@@ -348,7 +333,6 @@ export default function InputForm({
             </div>
           </div>
 
-          {/* Dynamically render news articles */}
           {newsArticles.map((article, index) => (
             <a
               key={index}
@@ -358,7 +342,6 @@ export default function InputForm({
               className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex hover:bg-slate-50 transition-colors duration-150"
             >
               <div className="flex items-center space-x-2 w-full">
-                {/* Image or Placeholder */}
                 <img
                   src={article.urlToImage || ""} // Provide empty string as default src
                   width="50"
@@ -378,7 +361,6 @@ export default function InputForm({
                     <BsLink45Deg size={20} />
                   </div>
                 )}
-                {/* Text content */}
                 <p className="text-sm text-slate-700 line-clamp-2 leading-snug font-medium">
                   {article.title || "Untitled Article"}
                 </p>
