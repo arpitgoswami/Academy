@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { RiLightbulbLine, RiTeamLine, RiBookletLine } from "react-icons/ri";
 import Image from "next/image";
+import Header from "@/components/Header";
 
 const demoSpaces = [
   {
@@ -59,6 +60,11 @@ const demoSpaces = [
 
 export default function SpacesPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
   const filteredSpaces = demoSpaces.filter(
     (space) =>
       space.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -71,32 +77,7 @@ export default function SpacesPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       <div className="max-w-6xl mx-auto px-4 py-16">
-        <header className="mb-12">
-          <div className="flex items-center gap-6 mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-teal-500/10 flex items-center justify-center">
-              <RiLightbulbLine className="h-8 w-8 text-teal-500" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
-                Spaces
-              </h1>
-              <p className="text-lg text-slate-600 dark:text-slate-400">
-                Join collaborative spaces to learn and share knowledge
-              </p>
-            </div>
-          </div>
-
-          <div className="relative max-w-xl">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search spaces..."
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500"
-            />
-          </div>
-        </header>
-
+        <Header onMenuClick={toggleSidebar} />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredSpaces.map((space) => (
             <article

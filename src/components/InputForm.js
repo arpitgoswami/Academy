@@ -8,40 +8,34 @@ import { FaMicrophone, FaStopCircle } from "react-icons/fa";
 import { RiMagicLine } from "react-icons/ri";
 import { IoSearchOutline } from "react-icons/io5";
 import { MdClear } from "react-icons/md";
-import { FiExternalLink } from "react-icons/fi";
-import { HiTranslate } from "react-icons/hi";
-import { GrAttachment } from "react-icons/gr";
 import { getCurrentLocationWeather } from "../services/weatherService";
 import { fetchNewsArticles } from "../services/newsService";
 import { LuMoonStar } from "react-icons/lu";
 import Image from "next/image";
-import { enhancePrompt } from "@/services/promptEnhancement";
 
 import Tooltip from "./Tooltip";
 
 export default function InputForm({
   userPrompt,
   setUserPrompt,
-  handleSubmit, // Use parent's handleSubmit
-  handleWebSearchClick, // Use parent's handleWebSearchClick
-  isLoading, // Use parent's isLoading state
-  setAiResponse, // Use parent's setter
-  setSources, // Use parent's setter
+  handleSubmit,
+  handleWebSearchClick,
+  isLoading,
+  setAiResponse,
+  setSources,
   user,
 }) {
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [weather, setWeather] = useState({});
-  const [newsArticles, setNewsArticles] = useState([]); // State for news articles
-  const [toasts, setToasts] = useState([]); // State for toasts
+  const [newsArticles, setNewsArticles] = useState([]);
+  const [toasts, setToasts] = useState([]);
 
-  // Function to add a toast
   const addToast = (message, type = "error", duration = 5000) => {
-    const id = Date.now(); // Simple unique ID
+    const id = Date.now();
     setToasts((prevToasts) => [...prevToasts, { id, message, type, duration }]);
   };
 
-  // Function to remove a toast
   const removeToast = (id) => {
     setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
   };
@@ -154,12 +148,23 @@ export default function InputForm({
         },
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to enhance prompt");
+      }
+
       const data = await response.json();
+
+      if (!data.enhancedPrompt) {
+        throw new Error("Invalid response from enhancement service");
+      }
+
       setUserPrompt(data.enhancedPrompt);
       textareaRef.current.style.height = "180px";
+      addToast("Prompt enhanced successfully!", "success", 3000);
     } catch (error) {
-      console.error("Error fetching enhanced prompt:", error);
-      throw error;
+      console.error("Error enhancing prompt:", error);
+      addToast(error.message || "Failed to enhance prompt. Please try again.");
     } finally {
       setIsEnhancing(false);
     }
@@ -175,7 +180,6 @@ export default function InputForm({
 
   return (
     <div className="w-full md:max-w-2xl px-6 relative space-y-8">
-      {" "}
       <ToastContainer toasts={toasts} removeToast={removeToast} />
       <h1 className="text-4xl md:text-center mb-8 font-semibold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
         What do you want to know?
@@ -212,7 +216,7 @@ export default function InputForm({
                   type="button"
                   disabled={isEnhancing || !userPrompt}
                   onClick={handleEnhanceClick}
-                  className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
+                  className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isEnhancing ? (
                     <>
@@ -333,7 +337,7 @@ export default function InputForm({
             </div>
           </div>
 
-          {newsArticles.map((article, index) => (
+          {newsArticles.slice(0, 2).map((article, index) => (
             <a
               key={index}
               href={article.url}
@@ -343,13 +347,13 @@ export default function InputForm({
             >
               <div className="flex items-center space-x-2 w-full">
                 <img
-                  src={article.urlToImage || ""} // Provide empty string as default src
+                  src={article.urlToImage || ""}
                   width="50"
                   height="50"
                   alt={article.title || "News article image"}
                   className={`rounded-xl object-cover flex-shrink-0 w-[50px] h-[50px] ${
                     article.urlToImage ? "" : "hidden"
-                  }`} // Hide if no image
+                  }`}
                   onError={(e) => {
                     if (e.target instanceof HTMLImageElement) {
                       e.target.style.display = "none";

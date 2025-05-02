@@ -1,27 +1,24 @@
-import Link from "next/link";
+import { NavLink } from "./common/NavLink";
 
-export default function DashboardFooter() {
+export default function Footer() {
   const links = [
-    { text: "Pro", href: "/pricing" },
-    { text: "Enterprise", href: "/pricing" },
-    { text: "API", href: "/api-docs" },
-    { text: "Careers", href: "/careers" },
-    { text: "Store", href: "/store" },
-    { text: "Privacy Policy", href: "/privacy-policy" },
+    { text: "Github", href: "https://github.com/arpitgoswami/academy" },
+    { text: "Help & Support", href: "/support" },
+    { text: "Privacy Policy", href: "/legal/privacy" },
+    { text: "Terms of Service", href: "/legal/terms" },
   ];
 
   return (
     <footer className="py-6 text-center text-[0.80rem] text-gray-400 mt-auto">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-center space-x-4 md:space-x-6 flex-wrap gap-y-2">
-          {links.map(({ text, href }, idx) => (
-            <Link
-              key={idx}
+          {links.map(({ text, href }) => (
+            <NavLink
+              key={text}
+              text={text}
               href={href}
-              className="hover:text-white hover:underline transition-colors duration-300 py-1"
-            >
-              {text}
-            </Link>
+              className="text-gray-400"
+            />
           ))}
         </div>
       </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import LogoutDialog from "./LogoutDialog";
 import { useAuth, signOutUser } from "../app/firebase";
 import { BiHome, BiLibrary } from "react-icons/bi";
 import { BsGlobe } from "react-icons/bs";
@@ -9,36 +8,33 @@ import { RiLightbulbLine } from "react-icons/ri";
 import { IoCloseOutline } from "react-icons/io5";
 import { FiLogOut } from "react-icons/fi";
 import Image from "next/image";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const NavButton = ({ icon, text, href, isActive }) => (
-  <Link
-    href={href || "#"}
-    className={`flex items-center py-2.5 px-4 rounded-lg w-full text-slate-600 dark:text-slate-400 transition-all duration-200 group ${
-      isActive
-        ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-medium"
-        : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
-    }`}
-    aria-label={text}
-  >
-    <div
-      className={`w-5 mr-3 flex-shrink-0 transition-colors ${
-        isActive
-          ? "text-teal-600 dark:text-teal-400"
-          : "text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300"
-      }`}
-    >
-      {icon}
-    </div>
-    <span>{text}</span>
-  </Link>
-);
+import LogoutDialog from "./LogoutDialog";
+import { NavLink } from "./common/NavLink";
 
 export default function Sidebar({ isOpen, onClose, onNewThread }) {
   const { user } = useAuth();
   const pathname = usePathname();
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+
+  const navItems = [
+    { icon: <BiHome className="w-5 h-5" />, text: "Home", href: "/home" },
+    {
+      icon: <BsGlobe className="w-5 h-5" />,
+      text: "Discover",
+      href: "/discover",
+    },
+    {
+      icon: <RiLightbulbLine className="w-5 h-5" />,
+      text: "Spaces",
+      href: "/spaces",
+    },
+    {
+      icon: <BiLibrary className="w-5 h-5" />,
+      text: "Library",
+      href: "/library",
+    },
+  ];
 
   const baseClasses =
     "fixed top-0 min-h-screen bottom-0 z-30 w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex flex-col transition-all duration-300 ease-in-out";
@@ -50,7 +46,7 @@ export default function Sidebar({ isOpen, onClose, onNewThread }) {
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key.toLowerCase() === "n" && event.shiftKey) {
-        event.preventDefault(); // Prevent default browser action (new window)
+        event.preventDefault();
         if (onNewThread) {
           onNewThread();
         }
@@ -58,22 +54,19 @@ export default function Sidebar({ isOpen, onClose, onNewThread }) {
     };
 
     window.addEventListener("keydown", handleKeyDown);
-
-    // Cleanup listener on component unmount
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [onNewThread]); // Re-run effect if onNewThread changes
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onNewThread]);
 
   return (
     <div className={`${baseClasses} ${responsiveClasses}`}>
       <button
         onClick={onClose}
-        className="absolute top-2 right-2 p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 md:hidden" // Only show on mobile
+        className="absolute top-2 right-2 p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 md:hidden"
         aria-label="Close menu"
       >
         <IoCloseOutline className="w-6 h-6" />
       </button>
+
       <div className="px-4 pt-6 flex items-center mb-8 group cursor-pointer">
         <div className="w-10 h-10 mr-3 transition-transform group-hover:scale-105">
           <img src="/logo_no_text.svg" alt="Logo" className="w-full h-full" />
@@ -108,30 +101,14 @@ export default function Sidebar({ isOpen, onClose, onNewThread }) {
         </button>
 
         <nav className="space-y-2" aria-label="Sidebar navigation">
-          <NavButton
-            icon={<BiHome className="w-5 h-5" />}
-            text="Home"
-            href="/home"
-            isActive={pathname === "/home"}
-          />
-          <NavButton
-            icon={<BsGlobe className="w-5 h-5" />}
-            text="Discover"
-            href="/discover"
-            isActive={pathname === "/discover"}
-          />
-          <NavButton
-            icon={<RiLightbulbLine className="w-5 h-5" />}
-            text="Spaces"
-            href="/spaces"
-            isActive={pathname === "/spaces"}
-          />
-          <NavButton
-            icon={<BiLibrary className="w-5 h-5" />}
-            text="Library"
-            href="/library"
-            isActive={pathname === "/library"}
-          />
+          {navItems.map((item) => (
+            <NavLink
+              key={item.text}
+              {...item}
+              isActive={pathname === item.href}
+              className="group"
+            />
+          ))}
         </nav>
       </div>
 

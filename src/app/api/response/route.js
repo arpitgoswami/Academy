@@ -32,7 +32,7 @@ export async function GET(request) {
 
     // Check if articles exist and process the top two
     if (data.articles && Array.isArray(data.articles)) {
-      const topTwoArticles = data.articles.slice(0, 2).map((article) => ({
+      const topTwoArticles = data.articles.map((article) => ({
         title: article.title,
         url: article.url,
         urlToImage: article.urlToImage,

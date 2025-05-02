@@ -65,7 +65,7 @@ export default function Header({ onMenuClick }) {
         {weather && (
           <div className="flex items-center gap-2 text-sm">
             <WeatherIcon className="w-5 h-5 text-teal-500" />
-            <span>{Math.round(weather.temp)}°C</span>
+            <span className="text-gray-600">{Math.round(weather.temp)}°C</span>
           </div>
         )}
 
