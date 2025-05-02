@@ -117,7 +117,7 @@ export default function Dashboard() {
       )}
       <Header onMenuClick={toggleSidebar} />
       <div className="flex-1 flex flex-col md:ml-64">
-        <main className="md:h-full container mx-auto px-4 sm:px-6 py-8 md:py-10 max-w-full">
+        <main className="md:h-full container mx-auto py-8 md:py-10 max-w-full">
           {/* Conditionally render InputForm based on aiResponse state */}
           {/* Conditionally render InputForm: Show only when no response, thinking, or error */}
           {(!aiResponse ||

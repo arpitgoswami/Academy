@@ -114,7 +114,7 @@ export default function LibraryPage() {
       <div className="w-auto md:ml-64 px-8 py-8">
         {/* Search header */}
         <header className="mb-12">
-          <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100 text-center mb-6">
+          <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100 md:text-center mb-6">
             Discover Amazing Images
           </h1>
           <form onSubmit={handleSearch} className="relative max-w-xl mx-auto">

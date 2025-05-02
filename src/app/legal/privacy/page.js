@@ -6,16 +6,16 @@ const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-3xl p-8 md:p-12 border border-gray-100">
+        <Link
+          href="/"
+          className="mb-8 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" /> Go Back
+        </Link>
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
             Privacy Policy
           </h1>
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" /> Go Back
-          </Link>
         </div>
 
         <div className="h-1 w-32 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full mb-10"></div>

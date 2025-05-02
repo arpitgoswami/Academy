@@ -13,7 +13,7 @@ const DashboardFooter = () => {
 
   return (
     <footer className="py-8 text-center">
-      <div className="flex justify-center items-center space-x-8">
+      <div className="flex justify-center items-center space-x-4 md:space-x-4 px-8">
         {footerLinks.map((link, index) => (
           <Link
             key={index}

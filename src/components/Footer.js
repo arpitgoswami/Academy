@@ -10,8 +10,8 @@ export default function Footer() {
 
   return (
     <footer className="py-6 text-center text-[0.80rem] text-gray-400 mt-auto">
-      <div className="container mx-auto px-6">
-        <div className="flex items-center justify-center space-x-4 md:space-x-6 flex-wrap gap-y-2">
+      <div className="container mx-auto">
+        <div className="flex items-center justify-center space-x-4 md:space-x-8 flex-wrap gap-y-2">
           {links.map(({ text, href }) => (
             <NavLink
               key={text}
