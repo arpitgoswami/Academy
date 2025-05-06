@@ -21,9 +21,6 @@ export default function InputForm({
   handleSubmit,
   handleWebSearchClick,
   isLoading,
-  setAiResponse,
-  setSources,
-  user,
 }) {
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -281,11 +278,7 @@ export default function InputForm({
                   disabled={isLoading || !userPrompt}
                   className="p-2 bg-teal-600 text-white hover:bg-teal-700 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isLoading ? (
-                    <BiLoaderAlt className="animate-spin h-3 w-3" />
-                  ) : (
-                    <BsChevronRight className="w-3.5 h-3.5" />
-                  )}
+                  <BsChevronRight className="w-3.5 h-3.5" />
                 </button>
               </Tooltip>
             </div>

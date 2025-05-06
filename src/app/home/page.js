@@ -27,10 +27,10 @@ export default function Dashboard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setAiResponse("Thinking...");
     if (!userPrompt.trim() || isLoading) return;
 
     setIsLoading(true);
-    setAiResponse("");
 
     try {
       const response = await fetch("/api/ai-generation", {
@@ -59,8 +59,9 @@ export default function Dashboard() {
   };
 
   const handleWebSearchClick = async () => {
-    if (!userPrompt || isSearchingWeb || isLoading) return; // Prevent search if busy or no prompt
+    if (!userPrompt || isSearchingWeb || isLoading) return;
     setIsSearchingWeb(true);
+    setAiResponse("Thinking...");
 
     try {
       const response = await fetch(
@@ -121,7 +122,6 @@ export default function Dashboard() {
           {/* Conditionally render InputForm based on aiResponse state */}
           {/* Conditionally render InputForm: Show only when no response, thinking, or error */}
           {(!aiResponse ||
-            aiResponse === "Thinking..." ||
             aiResponse.startsWith("Error generating response") ||
             aiResponse.startsWith("Error performing web search")) && (
             <div

@@ -1,13 +1,12 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { BiLoaderAlt, BiCopy, BiCheck, BiLink } from "react-icons/bi";
 import { MdOutlineQuestionAnswer } from "react-icons/md";
 import { IoSearchOutline } from "react-icons/io5";
-import { storePrompt } from "../services/promptStorage";
 import Tooltip from "./Tooltip";
 
 export default function ResponseDisplay({
@@ -15,7 +14,6 @@ export default function ResponseDisplay({
   sources,
   userPrompt,
   onNewThread,
-  user,
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -78,18 +76,6 @@ export default function ResponseDisplay({
     });
   };
 
-  useEffect(() => {
-    if (
-      aiResponse &&
-      aiResponse !== "Thinking..." &&
-      aiResponse !== "Performing web search..." &&
-      !aiResponse.startsWith("Error generating response") &&
-      !aiResponse.startsWith("Error performing web search")
-    ) {
-      storePrompt(user, userPrompt, "generation", aiResponse);
-    }
-  }, [aiResponse, userPrompt, user]);
-
   if (
     !aiResponse ||
     aiResponse === "Thinking..." ||
@@ -98,7 +84,7 @@ export default function ResponseDisplay({
   ) {
     if (aiResponse) {
       return (
-        <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800/80 dark:to-slate-900 border border-slate-200/80 dark:border-slate-700/50 rounded-3xl p-10 mt-6 text-center shadow-sm backdrop-blur-sm">
+        <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800/80 dark:to-slate-900 border border-slate-200/80 dark:border-slate-700/50 rounded-3xl p-10 mt-6 text-center md:shadow-sm backdrop-blur-sm">
           {aiResponse === "Thinking..." ? (
             <div className="flex flex-col items-center justify-center gap-3">
               <div className="w-16 h-16 relative">
@@ -255,7 +241,7 @@ export default function ResponseDisplay({
   };
 
   return (
-    <div className="w-full md:max-w-3xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/70 rounded-3xl overflow-hidden mb-6 shadow-md backdrop-blur-sm transition-all duration-300 hover:shadow-lg">
+    <div className="w-full md:max-w-4xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/70 rounded-3xl overflow-hidden mb-6 mx-8 md:shadow-md backdrop-blur-sm transition-all duration-300 ">
       <form
         onSubmit={handleSearch}
         className="p-7 border-b border-slate-200 dark:border-slate-700/50"
