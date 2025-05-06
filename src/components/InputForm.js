@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import ToastContainer from "./ToastContainer";
 import { BiLoaderAlt } from "react-icons/bi";
 import { BsLink45Deg, BsGlobe, BsChevronRight } from "react-icons/bs";
+import { IoCopyOutline, IoCheckmarkOutline } from "react-icons/io5";
 import { FaMicrophone, FaStopCircle } from "react-icons/fa";
 import { RiMagicLine } from "react-icons/ri";
 import { IoSearchOutline } from "react-icons/io5";
@@ -23,6 +24,7 @@ export default function InputForm({
   isLoading,
 }) {
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [weather, setWeather] = useState({});
   const [newsArticles, setNewsArticles] = useState([]);
@@ -241,6 +243,32 @@ export default function InputForm({
             </div>
 
             <div className="flex items-center space-x-2">
+              <Tooltip
+                text={isCopied ? "Copied!" : "Copy Prompt"}
+                position="top"
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(userPrompt);
+                    setIsCopied(true);
+                    setTimeout(() => setIsCopied(false), 2000);
+                  }}
+                  className={`p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                    isCopied
+                      ? "text-green-500 bg-green-50 hover:bg-green-100"
+                      : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+                  }`}
+                  title={isCopied ? "Copied!" : "Copy Prompt"}
+                  disabled={!userPrompt}
+                >
+                  {isCopied ? (
+                    <IoCheckmarkOutline className="w-3.5 h-3.5" />
+                  ) : (
+                    <IoCopyOutline className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </Tooltip>
               <Tooltip text="Dictation" position="top">
                 <button
                   type="button"
