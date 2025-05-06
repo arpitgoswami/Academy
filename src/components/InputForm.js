@@ -135,7 +135,7 @@ export default function InputForm({
     if (!userPrompt || isEnhancing) return;
     setIsEnhancing(true);
     try {
-      const url = `http://localhost:3000/api/enhance?originalPrompt=${encodeURIComponent(
+      const url = `/api/enhance?originalPrompt=${encodeURIComponent(
         userPrompt
       )}`;
       const response = await fetch(url, {
@@ -235,7 +235,7 @@ export default function InputForm({
                 className="ml-2 md:ml-0 inline-flex items-center px-2 md:px-3 py-2 text-xs font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
                 style={{ display: userPrompt ? "flex" : "none" }}
               >
-                <MdClear className="h-3.5 w-3.5 mr-0.5" />
+                <MdClear className="h-3.5 w-3.5 md:mr-0.5" />
                 <span className="hidden md:block">Clear</span>
               </button>
             </div>
