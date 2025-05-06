@@ -7,6 +7,7 @@ import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { BiLoaderAlt, BiCopy, BiCheck, BiLink } from "react-icons/bi";
 import { MdOutlineQuestionAnswer } from "react-icons/md";
 import { IoSearchOutline } from "react-icons/io5";
+import { FaPlus } from "react-icons/fa";
 import Tooltip from "./Tooltip";
 
 export default function ResponseDisplay({
@@ -323,7 +324,8 @@ export default function ResponseDisplay({
               onClick={onNewThread}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-teal-50 text-teal-600 hover:bg-teal-100 dark:bg-teal-900/20 dark:text-teal-400 dark:hover:bg-teal-900/30 transition-all duration-200"
             >
-              <span>New Thread</span>
+              <FaPlus className="h-4 w-4" />
+              <span className="hidden md:block">New Thread</span>
             </button>
           </Tooltip>
         </div>

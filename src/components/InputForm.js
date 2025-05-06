@@ -205,7 +205,7 @@ export default function InputForm({
 
           <div className="flex items-center justify-between px-5 py-4 border-t border-slate-100">
             <div className="flex items-center md:space-x-2">
-              <div className="custom-model-name hidden md:block">
+              <div className="custom-model-name py-2 hidden md:block">
                 Gemini 2.0 Flash
               </div>
               <Tooltip text="Enhance your prompt" position="top">
@@ -213,16 +213,16 @@ export default function InputForm({
                   type="button"
                   disabled={isEnhancing || !userPrompt}
                   onClick={handleEnhanceClick}
-                  className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center px-3 py-2 text-xs font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isEnhancing ? (
                     <>
-                      <BiLoaderAlt className="animate-spin h-3 w-3 mr-1" />
+                      <BiLoaderAlt className="animate-spin h-3.5 w-3.5 mr-1" />
                       <span>Enhancing...</span>
                     </>
                   ) : (
                     <>
-                      <RiMagicLine className="h-3 w-3 mr-1" />
+                      <RiMagicLine className="h-3.5 w-3.5 mr-1" />
                       <span>Enhance Prompt</span>
                     </>
                   )}
@@ -232,11 +232,11 @@ export default function InputForm({
               <button
                 type="button"
                 onClick={handleClear}
-                className="ml-2 md:ml-0 inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
+                className="ml-2 md:ml-0 inline-flex items-center px-2 md:px-3 py-2 text-xs font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
                 style={{ display: userPrompt ? "flex" : "none" }}
               >
-                <MdClear className="h-3 w-3 mr-0.5" />
-                <span>Clear</span>
+                <MdClear className="h-3.5 w-3.5 mr-0.5" />
+                <span className="hidden md:block">Clear</span>
               </button>
             </div>
 
