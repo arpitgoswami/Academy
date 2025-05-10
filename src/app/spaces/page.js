@@ -1,10 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Header from "@/components/Header";
 import Character from "./components/Character";
 import PromptBar from "./components/PromptBar";
 import DebugOutput from "./components/DebugOutput";
+
+import LottieRecording from "./components/LottieRecording";
+import LottieAnimation from "./components/LottieAnimation";
+import LottieTalk from "./components/LottieTalk";
+import LottieLoad from "./components/LottieLoad";
 
 const DEFAULT_VOICE = { name: "Sarah", label: "Sarah (US)", lang: "en-US" };
 
@@ -16,7 +20,6 @@ const removeEmojis = (text) =>
   );
 
 export default function SpacesPage() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [promptInput, setPromptInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -122,15 +125,77 @@ export default function SpacesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+    <div className="relative min-h-screen bg-[#070714] bg-[url('/stars-bg.png')] bg-cover">
+      {/* Animated cosmic gradient background */}
+      <div className="fixed inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 animate-gradient-x pointer-events-none"></div>
+
+      {/* Cosmic overlay gradients */}
+      <div className="fixed inset-0 bg-gradient-to-b from-indigo-900/10 via-purple-900/5 to-[#070714]/90 pointer-events-none"></div>
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-800/20 via-transparent to-transparent pointer-events-none"></div>
+
+      {/* Animated stars */}
+      <div className="fixed inset-0 overflow-hidden opacity-70 pointer-events-none">
+        <div className="absolute h-1 w-1 bg-white rounded-full top-[10%] left-[25%] animate-pulse"></div>
+        <div
+          className="absolute h-1 w-1 bg-white rounded-full top-[45%] left-[75%] animate-pulse"
+          style={{ animationDelay: "0.3s" }}
+        ></div>
+        <div
+          className="absolute h-2 w-2 bg-white rounded-full top-[25%] left-[50%] animate-pulse"
+          style={{ animationDelay: "0.5s" }}
+        ></div>
+        <div
+          className="absolute h-1 w-1 bg-white rounded-full top-[65%] left-[15%] animate-pulse"
+          style={{ animationDelay: "0.7s" }}
+        ></div>
+        <div
+          className="absolute h-1 w-1 bg-white rounded-full top-[85%] left-[82%] animate-pulse"
+          style={{ animationDelay: "0.9s" }}
+        ></div>
+        <div
+          className="absolute h-1 w-1 bg-white rounded-full top-[35%] left-[30%] animate-pulse"
+          style={{ animationDelay: "1.1s" }}
+        ></div>
+      </div>
+
       <div className="pb-40 relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent"></div>
-        <div className="relative max-w-3xl mx-auto px-4 py-16">
-          <Header onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
+        {/* Main content area */}
+        <div className="relative max-w-3xl mx-auto px-4 pt-16 pb-8">
+          <div className="flex flex-col items-center justify-center mb-6">
+            <h1 className="flex items-center text-3xl font-bold text-white mb-2 tracking-wide">
+              AI Virtual Guide{" "}
+              <span className="text-sm bg-blue-500 p-2 rounded-lg ml-2 text-black">
+                BETA RELEASE
+              </span>
+            </h1>
+            <p className="text-indigo-200/80 text-center max-w-md">
+              Describe your queries and let AI generate the perfect answer for
+              your queries.
+            </p>
+          </div>
 
-          <Character isSpeaking={isSpeaking} />
+          {/* Character component */}
+          <div className="w-auto h-auto flex items-center justify-center">
+            <div className="bg-white rounded-full p-4">
+              {isSpeaking ? (
+                <LottieTalk />
+              ) : isLoading ? (
+                <LottieLoad />
+              ) : isRecording ? (
+                <LottieRecording />
+              ) : (
+                <LottieAnimation />
+              )}
+            </div>
+          </div>
 
-          <DebugOutput response={currentResponse} />
+          {/* Debug output with updated styling */}
+          {/* <div className="relative z-10 mt-8">
+            <DebugOutput
+              response={currentResponse}
+              className="p-6 rounded-2xl bg-gradient-to-br from-[#151530]/60 to-[#1a1a40]/60 border border-indigo-500/20 backdrop-blur-sm shadow-lg"
+            />
+          </div> */}
         </div>
       </div>
 

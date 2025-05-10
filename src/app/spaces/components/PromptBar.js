@@ -1,6 +1,17 @@
 "use client";
 
-import { Mic, X, Send } from "lucide-react";
+import {
+  Mic,
+  X,
+  SendHorizontal,
+  Bot,
+  Volume2,
+  StopCircle,
+  ChevronDown,
+  Sparkles,
+  AudioLines,
+  Loader,
+} from "lucide-react";
 
 const VOICE_OPTIONS = [
   { name: "Sarah", label: "Sarah (US)", lang: "en-US" },
@@ -11,21 +22,29 @@ const VOICE_OPTIONS = [
 
 export function VoiceSelect({ selectedVoice, onVoiceChange }) {
   return (
-    <div className="mb-3 relative">
-      <select
-        value={selectedVoice?.name || VOICE_OPTIONS[0].name}
-        onChange={(e) => {
-          const voice = VOICE_OPTIONS.find((v) => v.name === e.target.value);
-          onVoiceChange(voice);
-        }}
-        className="w-full p-3 pl-4 pr-10 rounded-xl border-2 border-slate-700/50 bg-slate-800/50 text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent text-sm font-medium backdrop-blur-sm transition-all duration-200 hover:border-blue-500/50"
-      >
-        {VOICE_OPTIONS.map((voice) => (
-          <option key={voice.name} value={voice.name} className="bg-slate-800">
-            {voice.label}
-          </option>
-        ))}
-      </select>
+    <div className="relative mb-3">
+      <div className="relative">
+        <select
+          value={selectedVoice?.name || VOICE_OPTIONS[0].name}
+          onChange={(e) => {
+            const voice = VOICE_OPTIONS.find((v) => v.name === e.target.value);
+            onVoiceChange(voice);
+          }}
+          className="w-full p-3 pl-10 pr-10 rounded-xl border border-indigo-500/30 bg-[#151530]/80 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent text-sm font-medium backdrop-blur-sm transition-all duration-200 hover:border-indigo-400/50 appearance-none shadow-lg shadow-indigo-900/20"
+        >
+          {VOICE_OPTIONS.map((voice) => (
+            <option
+              key={voice.name}
+              value={voice.name}
+              className="bg-[#151530] py-2"
+            >
+              {voice.label}
+            </option>
+          ))}
+        </select>
+        <Volume2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400" />
+        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400 pointer-events-none" />
+      </div>
     </div>
   );
 }
@@ -47,14 +66,17 @@ export function PromptInput({
         value={value}
         onChange={onChange}
         onKeyPress={onKeyPress}
-        placeholder="Type your question..."
-        className="w-full p-4 pl-5 pr-24 rounded-xl border-2 border-slate-700/50 bg-slate-800/50 text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-blue-500/50"
+        placeholder="Ask any question..."
+        className="w-full p-3 pl-12 pr-24 rounded-xl border border-indigo-500/30 bg-[#151530]/80 text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent shadow-lg shadow-indigo-900/20 backdrop-blur-sm transition-all duration-200 hover:border-indigo-400/50"
       />
+      <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400" />
+
       <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
         {value && (
           <button
             onClick={onClear}
-            className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors duration-200 text-slate-400 hover:text-slate-300"
+            className="p-2 hover:bg-[#1a1a40] rounded-lg transition-colors duration-200 text-slate-400 hover:text-slate-200"
+            aria-label="Clear input"
           >
             <X className="w-4 h-4" />
           </button>
@@ -62,17 +84,18 @@ export function PromptInput({
         <button
           onClick={onRecord}
           disabled={!recognition || isLoading}
+          aria-label={isRecording ? "Stop recording" : "Start recording"}
           className={`p-2 rounded-lg flex items-center justify-center transition-all duration-200 ${
             isRecording
-              ? "bg-red-500/80 hover:bg-red-600/80 scale-110"
-              : "bg-slate-700/50 hover:bg-slate-600/50"
+              ? "bg-purple-500/80 hover:bg-purple-600 scale-110 shadow-md shadow-purple-500/20"
+              : "bg-[#1a1a40] hover:bg-[#252550]"
           } disabled:opacity-50 disabled:cursor-not-allowed`}
         >
-          <Mic
-            className={`w-4 h-4 ${
-              isRecording ? "text-white animate-pulse" : "text-slate-300"
-            }`}
-          />
+          {isRecording ? (
+            <StopCircle className="w-4 h-4 text-white animate-pulse" />
+          ) : (
+            <Mic className="w-4 h-4 text-slate-200" />
+          )}
         </button>
       </div>
     </div>
@@ -84,28 +107,21 @@ export function AskButton({ onClick, disabled, isLoading, isSpeaking }) {
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`px-6 py-4 rounded-xl transition-all duration-200 shadow-lg flex items-center justify-center gap-2 ${
+      aria-label={isSpeaking ? "Stop speaking" : "Generate my UI file"}
+      className={`px-5 py-3 rounded-xl transition-all duration-300 shadow-lg flex items-center justify-center gap-2 ${
         isSpeaking
-          ? "bg-red-500/80 hover:bg-red-600/80 scale-105"
-          : "bg-blue-600/80 hover:bg-blue-700/80 hover:scale-105 disabled:bg-blue-500/40 disabled:scale-100"
-      } text-white disabled:cursor-not-allowed backdrop-blur-sm`}
+          ? "bg-gradient-to-br from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 scale-105 shadow-purple-500/20"
+          : "bg-gradient-to-br from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 hover:scale-105 disabled:from-purple-500/40 disabled:to-indigo-600/40 disabled:scale-100"
+      } text-white font-medium disabled:cursor-not-allowed backdrop-blur-sm`}
     >
       {isLoading ? (
-        <div className="flex gap-1">
-          <div className="w-2 h-2 rounded-full bg-white/70 animate-bounce"></div>
-          <div className="w-2 h-2 rounded-full bg-white/70 animate-bounce delay-100"></div>
-          <div className="w-2 h-2 rounded-full bg-white/70 animate-bounce delay-200"></div>
-        </div>
+        <Loader className="w-5 h-5 animate-spin" />
       ) : isSpeaking ? (
-        <div className="h-6 flex items-center space-x-0.5">
-          <div className="animate-pulse w-1 h-4 bg-white/70"></div>
-          <div className="animate-pulse w-1 h-6 bg-white/70 animation-delay-150"></div>
-          <div className="animate-pulse w-1 h-3 bg-white/70 animation-delay-300"></div>
-        </div>
+        <AudioLines className="w-5 h-5 animate-pulse" />
       ) : (
         <>
-          <span>Ask</span>
-          <Send className="w-4 h-4" />
+          <span>Generate Answer</span>
+          <SendHorizontal className="w-4 h-4" />
         </>
       )}
     </button>
@@ -126,13 +142,14 @@ export default function PromptBar({
   onAskClick,
 }) {
   return (
-    <div className="fixed mx-auto max-w-3xl rounded-xl border bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-slate-900/90 to-slate-900/80 backdrop-blur-md border-t border-slate-800/50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)] p-6">
+    <div className="fixed mx-auto max-w-3xl bottom-0 left-0 right-0 bg-gradient-to-t from-[#0e0e20]/95 via-[#151530]/95 to-[#1a1a40]/80 backdrop-blur-lg border-t border-indigo-500/20 shadow-[0_-10px_20px_-3px_rgba(0,0,0,0.3)] p-6 rounded-t-3xl">
       <div className="max-w-3xl mx-auto">
+        <h2 className="text-xl font-medium text-white mb-4">Virtual Guide</h2>
         <VoiceSelect
           selectedVoice={selectedVoice}
           onVoiceChange={onVoiceChange}
         />
-        <div className="flex gap-4">
+        <div className="flex gap-3">
           <PromptInput
             value={promptInput}
             onChange={onPromptChange}
