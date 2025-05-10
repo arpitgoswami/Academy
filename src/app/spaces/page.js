@@ -162,12 +162,14 @@ export default function SpacesPage() {
         {/* Main content area */}
         <div className="relative max-w-3xl mx-auto px-4 pt-16 pb-8">
           <div className="flex flex-col items-center justify-center mb-6">
-            <h1 className="flex items-center text-3xl font-bold text-white mb-2 tracking-wide">
-              AI Virtual Guide{" "}
-              <span className="text-sm bg-blue-500 p-2 rounded-lg ml-2 text-black">
+            <div className="mb-4 flex flex-col md:flex-row items-center justify-center">
+              <h1 className="text-center items-center text-3xl font-bold text-white mb-2 tracking-wide">
+                AI Virtual Guide
+              </h1>
+              <span className="text-sm text-center bg-blue-500 p-2 rounded-lg ml-2 text-black">
                 BETA RELEASE
               </span>
-            </h1>
+            </div>
             <p className="text-indigo-200/80 text-center max-w-md">
               Describe your queries and let AI generate the perfect answer for
               your queries.

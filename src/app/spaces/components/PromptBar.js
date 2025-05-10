@@ -120,8 +120,8 @@ export function AskButton({ onClick, disabled, isLoading, isSpeaking }) {
         <AudioLines className="w-5 h-5 animate-pulse" />
       ) : (
         <>
-          <span>Generate Answer</span>
-          <SendHorizontal className="w-4 h-4" />
+          Generate<span className="hidden md:block"> Answer</span>
+          <SendHorizontal className="hidden md:block w-4 h-4" />
         </>
       )}
     </button>
